@@ -1,4 +1,4 @@
-# CS330-NetworkingProject: <i>Circle Brawl</i>
+# CS330-NetworkingProject: <i>Diametrical Brawl</i>
 ## Running the Program
 ### Server
 In order to run the server, open the <i>Server</i> project folder in an IDE (I use Eclipse) and set the run configuration to run the main class in <i>Server.java</i>
