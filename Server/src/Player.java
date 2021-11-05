@@ -1,5 +1,4 @@
-import java.awt.Color;
-import java.util.TimerTask;
+
 import java.util.concurrent.ThreadLocalRandom;
 import processing.core.PVector;
 import java.lang.Math;
@@ -11,7 +10,6 @@ public class Player {
 	  float size;
 	  boolean alive;
 	  float m;
-	  Color hue;
 	  
 	  Player(int identifier) {
 	    id = identifier;
@@ -20,7 +18,6 @@ public class Player {
 	    size = 30;
 	    alive = true;
 	    m = (float) ((size/2) *.1);
-	    hue = new Color(ThreadLocalRandom.current().nextInt(0, 255), ThreadLocalRandom.current().nextInt(0, 255), ThreadLocalRandom.current().nextInt(0, 255));
 	  }
 	
 	/* Collision physics found on processing.org shared by Ira Greenberg
@@ -124,7 +121,7 @@ public class Player {
  void takeInput(int keyPress) {
 	 switch(keyPress) {
 	 	case(38):
-	 		if (velocity.y > -.1) {
+	 		if (velocity.y > -.5) {
 	 			velocity.y -= .1;
 	 		}  
 	     	//System.out.println(velocity);
@@ -132,7 +129,7 @@ public class Player {
 	     	break;
 	       
 	    case(40):
-	    	if (velocity.y < .1) {
+	    	if (velocity.y < .5) {
 	    		velocity.y += .1;
 	    	}
 	    	//System.out.println(velocity);
@@ -140,7 +137,7 @@ public class Player {
 	       	break;
 	       
 	    case(39):
-	    	if (velocity.x < .1) {
+	    	if (velocity.x < .5) {
 	    		velocity.x += .1;
 	    	}
 	    	//System.out.println(velocity);
@@ -148,7 +145,7 @@ public class Player {
 	       	break;
 	       
 	    case(37):
-	    	if (velocity.x > -.1) {
+	    	if (velocity.x > -.5) {
 	    		velocity.x -= .1;
 	    	}
 	    	//System.out.println(velocity);

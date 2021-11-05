@@ -25,10 +25,11 @@ public class player {
       textSize(72);
       text("Player " + id, 50, 100);
     }
-    position.add(velocity);
+    //position.add(velocity);
     //System.out.println(position);
     m = (size/2) *.1;
     ellipse(position.x, position.y, size, size);
+    fill(0);
   }
   /* Collision physics found on processing.org shared by Ira Greenberg
      https://processing.org/examples/circlecollision.html */

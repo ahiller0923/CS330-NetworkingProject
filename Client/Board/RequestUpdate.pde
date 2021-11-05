@@ -1,12 +1,14 @@
 
-public class requestUpdate extends TimerTask{
+public class RequestUpdate implements Runnable{
   Protocol protocol;
   
-  requestUpdate(Protocol activeProtocol) {
+  RequestUpdate(Protocol activeProtocol) {
     protocol = activeProtocol;
   }
   
   void run() {
-    protocol.requestUpdate();
+    while(!protocol.socket.isClosed()) {
+      protocol.requestUpdate();
+    }
   }
 }

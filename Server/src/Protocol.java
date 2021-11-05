@@ -1,8 +1,6 @@
 import java.net.DatagramSocket;
 import java.nio.*;
-import java.util.Arrays ;
 import java.util.LinkedList;
-import java.util.Timer;
 
 public class Protocol {
 	String state;

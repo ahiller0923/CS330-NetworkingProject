@@ -108,7 +108,6 @@ public class Protocol {
           break;
         case 1: 
           parseData(byteBuffer, 1);
-          System.out.println("Update Received");
           break;
         default:
           System.out.println("Data not parsed");
@@ -130,6 +129,7 @@ public class Protocol {
         
         while(byteBuffer.getInt() == 0) {
           game.playerList.add(new player(id));
+          game.playersAlive += 1;
           player = game.getPlayer(id);
           
           player.position.x = byteBuffer.getFloat();
@@ -137,9 +137,6 @@ public class Protocol {
           player.velocity.x = byteBuffer.getFloat();
           player.velocity.y = byteBuffer.getFloat();
           player.size = byteBuffer.getFloat();
-          
-          //System.out.println("Player " + game.getPlayer(id).id + " position: " + game.getPlayer(id).position + "velocity: " + game.getPlayer(id).velocity + " size: " +game.getPlayer(id).size);
-          //System.out.println(game.playerList.size());
           
           id++;
         }
@@ -154,22 +151,36 @@ public class Protocol {
         
       case 1:
         while(byteBuffer.getInt() == 0) {
-          if(id >= game.playerList.size()) {
+          if(id >= game.playerList.size() + 1) {
             game.playerList.add(new player(id));
+            game.playersAlive += 1;
           }
           player = game.getPlayer(id);
           
-          player.position.x = byteBuffer.getFloat();
-          player.position.y = byteBuffer.getFloat();
-          player.velocity.x = byteBuffer.getFloat();
-          player.velocity.y = byteBuffer.getFloat();
-          player.size = byteBuffer.getFloat();
+          if (byteBuffer.getInt() == 0) {
+            if(player.alive == true) {
+              player.alive = false;
+              game.playersAlive -= 1;
+            }
+            System.out.println(game.playersAlive);
+          }
           
-          //System.out.println("Player " + game.getPlayer(id).id + " position: " + game.getPlayer(id).position + "velocity: " + game.getPlayer(id).velocity + " size: " +game.getPlayer(id).size);
-          //System.out.println(game.playerList.size());
+          else {
+            player.position.x = byteBuffer.getFloat();
+            player.position.y = byteBuffer.getFloat();
+            player.velocity.x = byteBuffer.getFloat();
+            player.velocity.y = byteBuffer.getFloat();
+            player.size = byteBuffer.getFloat();
+          }
           
           id++;
         }
+        
+        //int i = 0;
+        //game.bonusPoints = new LinkedList<bonus>();
+        //while(byteBuffer.getInt() == 0) {
+          //game.bonusPoints.add(new bonus(new PVector(byteBuffer.getFloat(), byteBuffer.getFloat())));
+        //}
         
         break;
       }

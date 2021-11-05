@@ -4,9 +4,9 @@ public class bonus {
   int size;
   PVector position;;
   
-  bonus() {
+  bonus(PVector pos) {
     size = 10;
-    position = new PVector((int)random(200, 800), (int)random(200, 800));
+    position = pos;
   }
   
   void draw() {

@@ -7,21 +7,24 @@ import java.util.TimerTask;
 Protocol protocol;
 boolean restart = false;
 Game game;
+RequestUpdate requestUpdate;
+InetAddress server;
 
 void setup() {
   size(1000, 1000);
     game = new Game();
-    Timer timer = new Timer();
   try {
-    protocol = new Protocol(InetAddress.getLocalHost(), 8000, 1000, game);
+    server = InetAddress.getLocalHost();
+    protocol = new Protocol(server, 8080, 1000, game);
     protocol.Connect();
   } 
   catch (Exception ex) {
     ex.printStackTrace();
   }
   
-  TimerTask requestUpdate = new requestUpdate(protocol);
-  timer.schedule(requestUpdate, 1); 
+  requestUpdate = new RequestUpdate(protocol);
+  Thread networkThread = new Thread(requestUpdate, "Network");
+  networkThread.start();
 }
 
 void keyPressed() {
@@ -29,8 +32,5 @@ void keyPressed() {
 }
 
 void draw() {
-  if (game.startGame) {
-    game.bonusPointGeneration();
     game.updateGameState();
-  }
 }

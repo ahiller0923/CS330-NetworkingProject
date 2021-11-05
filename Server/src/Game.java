@@ -13,7 +13,6 @@ public class Game {
 	Game() {
 		players = new LinkedList<Player>();
 		bonusPoints = new LinkedList<Bonus>();
-		boolean inProgress = true;
 		boundary = new Ring(windowSize/2);
 	}
 

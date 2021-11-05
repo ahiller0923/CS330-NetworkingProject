@@ -7,6 +7,7 @@ public class Game {
   ring boundary;
   int windowSize = 1000;
   int localPlayerID;
+  int playersAlive;
   
   Game() {
     playerList = new LinkedList<player>();
@@ -19,14 +20,6 @@ public class Game {
     return playerList.get(id - 1);
   }
   
-  void bonusPointGeneration() {
-      // Bonus Points
-      int isBonus = (int)random(1, 100);
-      
-      if(isBonus == 7 && bonusPoints.size() < 10) {
-        bonusPoints.add(new bonus());
-      }
-  }
   
   float distance(float x1, float y1, float x2, float y2) {
     return sqrt(pow(x1-x2, 2) + pow(y1 - y2, 2));
@@ -35,37 +28,16 @@ public class Game {
   void updateGameState() {
     background(64);
     stroke(0);
-    if (playerList.size() > 1) {
-      // Draw the boundary
-      boundary.draw();
-    
-      // Check if the player has lost
-      for (int i = 0; i < game.playerList.size(); i++) {
-        if (distance(playerList.get(i).position.x, playerList.get(i).position.y, boundary.position, boundary.position) > boundary.size/2) {
-          textSize(72);
-          playerList.remove(i);
-          
-          if (playerList.size() == 1) {
-             break;
-          }
-        }
+    // Draw the boundary
+    boundary.draw();
+
+    for (int i = 0; i < game.playerList.size(); i++) {
+      if (playerList.get(i).alive) {
+        fill(255);
+        playerList.get(i).draw(localPlayerID == playerList.get(i).id);
         
-        if (playerList.get(i).alive) {
-          for(int x = 0; x < playerList.size(); x++) {
-            if (i != x){
-              playerList.get(i).checkCollision(playerList.get(x));
-            }
-          }
-          
-          for(int y = 0; y < bonusPoints.size(); y++) {
-            bonus point = bonusPoints.get(y);
-            if (distance(playerList.get(i).position.x, playerList.get(i).position.y, point.position.x, point.position.y) < playerList.get(0).size/2) {
-              bonusPoints.remove(y);
-              playerList.get(i).size += 5;
-            }
-          }
-          fill(255);
-          playerList.get(i).draw(localPlayerID == playerList.get(i).id);
+        if(playersAlive == 1) {
+          text("Player " + playerList.get(i).id + " wins!", 100, 500);
         }
       }
     }
@@ -73,17 +45,6 @@ public class Game {
     for (int i = 0; i < bonusPoints.size(); i++) {
       bonus point = bonusPoints.get(i);
       point.draw();
-    }
-    
-    if (playerList.size() == 1) {
-     text("Player " + playerList.get(0).id + " wins!", 100, 500);
-     text("Press 'r' to start a new game", 100, 600);
-     
-      if(restart) {
-        restart = false;
-       
-        setup();
-      }
     }
   }
   
