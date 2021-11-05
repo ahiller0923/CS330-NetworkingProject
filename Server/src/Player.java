@@ -120,36 +120,29 @@ public class Player {
  
  void takeInput(int keyPress) {
 	 switch(keyPress) {
+	 	// UP
 	 	case(38):
-	 		if (velocity.y > -.5) {
+	 		if (velocity.y > -.3) {
 	 			velocity.y -= .1;
 	 		}  
-	     	//System.out.println(velocity);
-	     	//System.out.println(position);
 	     	break;
-	       
+	    // DOWN
 	    case(40):
-	    	if (velocity.y < .5) {
+	    	if (velocity.y < .3) {
 	    		velocity.y += .1;
 	    	}
-	    	//System.out.println(velocity);
-	    	//System.out.println(position);
 	       	break;
-	       
+	    // RIGHT
 	    case(39):
-	    	if (velocity.x < .5) {
+	    	if (velocity.x < .3) {
 	    		velocity.x += .1;
 	    	}
-	    	//System.out.println(velocity);
-	    	//System.out.println(position);
 	       	break;
-	       
+	    // LEFT
 	    case(37):
-	    	if (velocity.x > -.5) {
+	    	if (velocity.x > -.3) {
 	    		velocity.x -= .1;
 	    	}
-	    	//System.out.println(velocity);
-	    	//System.out.println(position);
 	       	break;
 	 }
  }

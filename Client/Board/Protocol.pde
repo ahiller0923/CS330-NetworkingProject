@@ -176,11 +176,15 @@ public class Protocol {
           id++;
         }
         
-        //int i = 0;
-        //game.bonusPoints = new LinkedList<bonus>();
-        //while(byteBuffer.getInt() == 0) {
-          //game.bonusPoints.add(new bonus(new PVector(byteBuffer.getFloat(), byteBuffer.getFloat())));
-        //}
+        int i = 0;
+        while(byteBuffer.getInt() == 0) {
+          game.bonusPoints.get(i).position = new PVector(byteBuffer.getFloat(), byteBuffer.getFloat());
+          i++;
+        }
+        
+        if(i < game.bonusPoints.size()) {
+          game.bonusPoints.get(i).position = new PVector(-1000, -1000);
+        }
         
         break;
       }

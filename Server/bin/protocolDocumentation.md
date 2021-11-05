@@ -19,3 +19,4 @@ There are a number of request types which can be sent from a client. The type of
 </p>
 
 ## Response Types
+Response types typically correlate with a request type. This is not always the case however. For example, an input request is responded to with the same response as an update request since both requests should receive the current game state.

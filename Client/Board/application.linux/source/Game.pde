@@ -14,6 +14,12 @@ public class Game {
     bonusPoints = new LinkedList<bonus>();
     startGame = false;
     boundary = new ring(windowSize/2);
+    bonusPoints = new LinkedList<bonus>();
+    
+    // Initalize bonus points list
+    for(int i = 0; i < 11; i++) {
+      bonusPoints.add(new bonus(new PVector(-1000, -1000)));
+    }
   }
   
   player getPlayer(int id) {

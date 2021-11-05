@@ -83,6 +83,12 @@ public class Game {
     bonusPoints = new LinkedList<bonus>();
     startGame = false;
     boundary = new ring(windowSize/2);
+    bonusPoints = new LinkedList<bonus>();
+    
+    // Initalize bonus points list
+    for(int i = 0; i < 11; i++) {
+      bonusPoints.add(new bonus(new PVector(-1000, -1000)));
+    }
   }
   
    public player getPlayer(int id) {
@@ -330,11 +336,15 @@ public class Protocol {
           id++;
         }
         
-        //int i = 0;
-        //game.bonusPoints = new LinkedList<bonus>();
-        //while(byteBuffer.getInt() == 0) {
-          //game.bonusPoints.add(new bonus(new PVector(byteBuffer.getFloat(), byteBuffer.getFloat())));
-        //}
+        int i = 0;
+        while(byteBuffer.getInt() == 0) {
+          game.bonusPoints.get(i).position = new PVector(byteBuffer.getFloat(), byteBuffer.getFloat());
+          i++;
+        }
+        
+        if(i < game.bonusPoints.size()) {
+          game.bonusPoints.get(i).position = new PVector(-1000, -1000);
+        }
         
         break;
       }

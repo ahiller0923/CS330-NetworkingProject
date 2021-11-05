@@ -21,11 +21,10 @@ public class Game {
 	}
 	
 	void bonusPointGeneration() {
-		int isBonus = ThreadLocalRandom.current().nextInt(1, 100);
+		int isBonus = ThreadLocalRandom.current().nextInt(1, 1000);
 		
 		if(isBonus == 7 && bonusPoints.size() < 11) {
 			bonusPoints.add(new Bonus());
-			System.out.println("Bonus Point Generated");
 		}
 	}
 	
