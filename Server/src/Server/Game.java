@@ -11,12 +11,14 @@ public class Game {
 	boolean inProgress;
 	int windowSize = 1000;
 	Ring boundary;
+	int ms;
 	
 	Game() {
 		players = new ArrayList<Player>();
 		bonusPoints = new ArrayList<Bonus>();
 		boundary = new Ring(windowSize/2);
 		playersConnected = 0;
+		ms = 1000 / 60;
 	}
 
 	Player getPlayer(int ID) {
@@ -67,12 +69,12 @@ public class Game {
 	  
 	  void startGame() {
 		  Timer timer = new Timer();
-		  timer.schedule(new scheduledUpdate(), 1, 15);
+		  timer.schedule(new gameStateScheduledUpdate(), 0, ms);
 		  inProgress = true;
 		  System.out.println("Game Started");
 	  }
 	  
-	  class scheduledUpdate extends TimerTask {
+	  class gameStateScheduledUpdate extends TimerTask {
 		  public void run() {
 			  updateGameState();
 		  }
