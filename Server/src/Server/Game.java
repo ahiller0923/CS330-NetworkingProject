@@ -1,19 +1,22 @@
-import java.util.LinkedList;
+package Server;
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Game {
-	LinkedList<Player> players;
-	LinkedList<Bonus> bonusPoints;
+	ArrayList<Player> players;
+	int playersConnected;
+	ArrayList<Bonus> bonusPoints;
 	boolean inProgress;
 	int windowSize = 1000;
 	Ring boundary;
 	
 	Game() {
-		players = new LinkedList<Player>();
-		bonusPoints = new LinkedList<Bonus>();
+		players = new ArrayList<Player>();
+		bonusPoints = new ArrayList<Bonus>();
 		boundary = new Ring(windowSize/2);
+		playersConnected = 0;
 	}
 
 	Player getPlayer(int ID) {
@@ -64,7 +67,8 @@ public class Game {
 	  
 	  void startGame() {
 		  Timer timer = new Timer();
-		  timer.schedule(new scheduledUpdate(), 1, 1);
+		  timer.schedule(new scheduledUpdate(), 1, 15);
+		  inProgress = true;
 		  System.out.println("Game Started");
 	  }
 	  

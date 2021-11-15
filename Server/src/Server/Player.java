@@ -1,3 +1,4 @@
+package Server;
 
 import java.util.concurrent.ThreadLocalRandom;
 import processing.core.PVector;
@@ -10,14 +11,18 @@ public class Player {
 	  float size;
 	  boolean alive;
 	  float m;
+	  boolean connected;
+	  Client clientInfo;
 	  
-	  Player(int identifier) {
+	  Player(int identifier, Client client) {
 	    id = identifier;
 	    position = new PVector((float)ThreadLocalRandom.current().nextInt(200, 801), (float)ThreadLocalRandom.current().nextInt(200, 801));
 	    velocity = new PVector(0, 0);
 	    size = 30;
 	    alive = true;
 	    m = (float) ((size/2) *.1);
+	    connected = false;
+	    clientInfo = client;
 	  }
 	
 	/* Collision physics found on processing.org shared by Ira Greenberg
@@ -122,26 +127,26 @@ public class Player {
 	 switch(keyPress) {
 	 	// UP
 	 	case(38):
-	 		if (velocity.y > -.3) {
-	 			velocity.y -= .1;
+	 		if (velocity.y > -3) {
+	 			velocity.y -= 1;
 	 		}  
 	     	break;
 	    // DOWN
 	    case(40):
-	    	if (velocity.y < .3) {
-	    		velocity.y += .1;
+	    	if (velocity.y < 3) {
+	    		velocity.y += 1;
 	    	}
 	       	break;
 	    // RIGHT
 	    case(39):
-	    	if (velocity.x < .3) {
-	    		velocity.x += .1;
+	    	if (velocity.x < 3) {
+	    		velocity.x += 1;
 	    	}
 	       	break;
 	    // LEFT
 	    case(37):
-	    	if (velocity.x > -.3) {
-	    		velocity.x -= .1;
+	    	if (velocity.x > -3) {
+	    		velocity.x -= 1;
 	    	}
 	       	break;
 	 }

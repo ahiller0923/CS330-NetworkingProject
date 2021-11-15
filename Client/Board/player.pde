@@ -128,4 +128,52 @@ public class player {
       other.velocity.y = (cosine * vFinal[1].y + sine * vFinal[1].x) * (size / 32);
     }
   }
+  
+  void takeInput() {
+    int[] data = new int[3];
+    int keyInput;
+    if (key == CODED) {
+     switch(keyCode) {
+       case(UP):
+       if (velocity.y > -3) {
+         velocity.y -= 1;
+         System.out.println("UP");
+       }
+         keyInput = 38;
+         break;
+       case(DOWN):
+       if (velocity.y < 3) {
+          velocity.y += 1;
+          System.out.println("DOWN");
+        }
+         keyInput = 40;
+         break;
+       case(RIGHT):
+        if (velocity.x < 3) {
+          velocity.x += 1;
+        }
+         keyInput = 39;
+         break;
+       case(LEFT):
+         if (velocity.x > -3) {
+          velocity.x -= 1;
+         }
+         keyInput = 37;
+         break;
+       default:
+         return;
+     }
+     data[0] = 1;
+     data[1] = game.localPlayerID;
+     data[2] = keyInput;
+     
+     protocol.send(data);
+  }
+  
+  else {
+    if(key == 'q') {
+      
+    }
+  }
+  }
 };

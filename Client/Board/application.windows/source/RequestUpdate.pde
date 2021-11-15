@@ -8,7 +8,7 @@ public class RequestUpdate implements Runnable{
   
   void run() {
     while(!protocol.socket.isClosed()) {
-      protocol.requestUpdate();
+      protocol.Listen();
     }
   }
 }

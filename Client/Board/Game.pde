@@ -1,8 +1,8 @@
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 public class Game {
-  LinkedList<player> playerList;
-  LinkedList<bonus> bonusPoints;
+  ArrayList<player> playerList;
+  ArrayList<bonus> bonusPoints;
   boolean startGame;
   ring boundary;
   int windowSize = 1000;
@@ -10,11 +10,11 @@ public class Game {
   int playersAlive;
   
   Game() {
-    playerList = new LinkedList<player>();
-    bonusPoints = new LinkedList<bonus>();
+    playerList = new ArrayList<player>();
+    bonusPoints = new ArrayList<bonus>();
     startGame = false;
     boundary = new ring(windowSize/2);
-    bonusPoints = new LinkedList<bonus>();
+    bonusPoints = new ArrayList<bonus>();
     
     // Initalize bonus points list
     for(int i = 0; i < 11; i++) {
@@ -40,6 +40,7 @@ public class Game {
     for (int i = 0; i < game.playerList.size(); i++) {
       if (playerList.get(i).alive) {
         fill(255);
+        playerList.get(i).position.add(playerList.get(i).velocity);
         playerList.get(i).draw(localPlayerID == playerList.get(i).id);
         
         if(playersAlive == 1) {
@@ -52,40 +53,6 @@ public class Game {
       bonus point = bonusPoints.get(i);
       point.draw();
     }
-  }
-  
-  void takeInput() {
-    int[] data = new int[3];
-    int keyInput;
-    if (key == CODED) {
-     switch(keyCode) {
-       case(UP):
-         keyInput = 38;
-         break;
-       case(DOWN):
-         keyInput = 40;
-         break;
-       case(RIGHT):
-         keyInput = 39;
-         break;
-       case(LEFT):
-         keyInput = 37;
-         break;
-       default:
-         return;
-     }
-     data[0] = 1;
-     data[1] = localPlayerID;
-     data[2] = keyInput;
-     
-     protocol.send(1, data);
-  }
-  
-  else {
-    if(key == 'q') {
-      
-    }
-  }
   }
 }
  

@@ -2,7 +2,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.util.LinkedList;
 import java.util.Arrays;
 import java.nio.ByteBuffer;
 
@@ -16,6 +15,7 @@ public class Protocol {
   int port;
   String state;
   Game game;
+  float alpha;
   
   Protocol (InetAddress target, int portNumber, int bufSize, Game localGame) {
     outgoingBuf = new byte[bufSize];
@@ -25,6 +25,7 @@ public class Protocol {
     port = portNumber;
     game = localGame;
     state = "WAITING";
+    alpha = .75;
     try {
       socket = new DatagramSocket();
     }
@@ -37,7 +38,7 @@ public class Protocol {
   DatagramPacket prepareForTransmission(int[] intData) {
     ByteBuffer byteData = ByteBuffer.allocate(4 * intData.length);
     
-    if (intData != null && intData.length > 0) {
+    if (intData.length > 0) {
       for (int i = 0; i < intData.length; i++) {
         byteData.putInt(intData[i]);
       }
@@ -71,7 +72,9 @@ public class Protocol {
   
   void Listen() {
     try {
-      socket.setSoTimeout(200);
+      if(game.startGame) {
+        //socket.setSoTimeout(200);
+      }
       socket.receive(incomingPacket);
       processResponse(incomingPacket.getData());
     }
@@ -81,7 +84,7 @@ public class Protocol {
     }
   }
   
-  void send(int transmissionType, int[] data) {
+  void send(int[] data) {
     outgoingPacket = prepareForTransmission(data);
     try {
       socket.send(outgoingPacket);
@@ -91,22 +94,16 @@ public class Protocol {
     }
   }
   
-  void requestUpdate() {
-    int[] data = new int[] {2};
-    
-    send(2, data);
-    
-    Listen();
-  }
-  
   void processResponse(byte[] serverResponse) {
     ByteBuffer byteBuffer = ByteBuffer.wrap(serverResponse);
     try {
       switch(byteBuffer.getInt()) {
         case 0:
+          System.out.println("Connection Data Received");
           parseData(byteBuffer, 0);
           break;
         case 1: 
+          //System.out.println("Update Data Received");
           parseData(byteBuffer, 1);
           break;
         default:
@@ -125,23 +122,27 @@ public class Protocol {
     switch(dataContentIndicator) {
       case 0:
         game.localPlayerID = byteBuffer.getInt();
-        System.out.println(game.localPlayerID);
         
         while(byteBuffer.getInt() == 0) {
           game.playerList.add(new player(id));
           game.playersAlive += 1;
           player = game.getPlayer(id);
           
-          player.position.x = byteBuffer.getFloat();
-          player.position.y = byteBuffer.getFloat();
-          player.velocity.x = byteBuffer.getFloat();
-          player.velocity.y = byteBuffer.getFloat();
+          /*player.position.x =*/ byteBuffer.getFloat();
+          /*player.position.y = */byteBuffer.getFloat();
+          player.velocity.x = alpha * player.velocity.x + (1 - alpha) * byteBuffer.getFloat();
+          player.velocity.y = alpha * player.velocity.y + (1 - alpha) *byteBuffer.getFloat();
           player.size = byteBuffer.getFloat();
           
           id++;
         }
         
         state = "CONNECTED";
+        
+        int data[] = new int[2];
+        data[0] = 2;
+        data[1] = game.localPlayerID;
+        send(data);
         
         if (byteBuffer.getInt() == 1) {
           game.startGame = true;
@@ -162,12 +163,11 @@ public class Protocol {
               player.alive = false;
               game.playersAlive -= 1;
             }
-            System.out.println(game.playersAlive);
           }
           
           else {
-            player.position.x = byteBuffer.getFloat();
-            player.position.y = byteBuffer.getFloat();
+            /*player.position.x = */byteBuffer.getFloat();
+            /*player.position.y = */byteBuffer.getFloat();
             player.velocity.x = byteBuffer.getFloat();
             player.velocity.y = byteBuffer.getFloat();
             player.size = byteBuffer.getFloat();
