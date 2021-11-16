@@ -24,7 +24,7 @@ public class Protocol{
 				// Input
 				case 1:
 					game.getPlayer(byteBuffer.getInt()).takeInput(byteBuffer.getInt());
-					return formatResponse(1);
+					return new byte[0];
 				case 2:
 					
 					game.getPlayer(byteBuffer.getInt()).connected = true;

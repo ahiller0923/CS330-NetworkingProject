@@ -36,7 +36,9 @@ public class Server {
 					socket.receive(receivePacket);
 					response = protocol.processRequest(receivePacket.getData());
 					responsePacket = new DatagramPacket(response, response.length, receivePacket.getAddress(), receivePacket.getPort());
-					socket.send(responsePacket);
+					if(responsePacket.getData().length > 0) {
+						socket.send(responsePacket);
+					}
 				}
 				catch(Exception ex) {
 					ex.printStackTrace();
