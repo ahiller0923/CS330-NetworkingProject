@@ -7,15 +7,15 @@ import java.util.ArrayList;
 
 public class Server {
 	DatagramSocket socket;
-	byte[] receive = new byte[1000];
-	byte[] response = new byte[1000];
+	byte[] receive = new byte[200];
+	byte[] response = new byte[200];
 	DatagramPacket responsePacket;
 	DatagramPacket receivePacket;
 	Protocol protocol = new Protocol(this);
 	
 	Server() {
 		try {
-			socket = new DatagramSocket(8082);
+			socket = new DatagramSocket(8080);
 		}
 		catch(Exception ex) {
 			ex.printStackTrace();
@@ -24,10 +24,6 @@ public class Server {
 	
 	public void start() {
 		receivePacket = new DatagramPacket(receive, receive.length);
-
-		clientUpdate update = new clientUpdate(this);
-		Thread updateThread = new Thread(update, "Update");
-		updateThread.start();
 		
 		if (socket != null) {
 			System.out.println("Server is running.");

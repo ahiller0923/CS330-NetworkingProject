@@ -5,7 +5,7 @@ import java.nio.*;
 
 public class Protocol{
 	String state;
-	byte[] responseBuffer = new byte[1000];
+	byte[] responseBuffer = new byte[200];
 	Game game = new Game();
 	Server server;
 	
@@ -20,22 +20,16 @@ public class Protocol{
 			switch(byteBuffer.getInt()) {
 				// Connection Request
 				case 0:
-					//System.out.println("Connection request received.");
 					return formatResponse(0);
 				// Input
 				case 1:
-					//System.out.println("User Input Received");
 					game.getPlayer(byteBuffer.getInt()).takeInput(byteBuffer.getInt());
 					return formatResponse(1);
 				case 2:
-					System.out.println("Player Connected");
 					
 					game.getPlayer(byteBuffer.getInt()).connected = true;
 					game.playersConnected++;
-					System.out.println(game.playersConnected);
-					System.out.println(game.players.size());
 					if (game.playersConnected > 1 && game.playersConnected == game.players.size()) {
-						System.out.println("StartGame");
 						startGame();
 					}
 					return formatResponse(1);
@@ -61,7 +55,7 @@ public class Protocol{
 					game.players.add(new Player(game.players.size() + 1, new Client(server.receivePacket.getAddress(), server.receivePacket.getPort())));
 					byteBuffer.putInt(0); // Type byte
 					byteBuffer.putInt(game.players.get(game.players.size()-1).id); // Player ID
-					System.out.println("Player " + game.players.get(game.players.size()-1) + " has joined!");
+					System.out.println("Player " + game.players.get(game.players.size()-1).id + " has joined!");
 					
 					// Add player information to the buffer
 					for (int i = 1; i <= game.players.size(); i++) {
@@ -112,6 +106,7 @@ public class Protocol{
 					byteBuffer.putFloat(game.bonusPoints.get(x).position.y);
 				}
 				byteBuffer.putInt(-1); // Byte indicating that no more bonus points are coming
+				byteBuffer.putInt(0);
 				
 				return byteBuffer.array();
 				
@@ -125,6 +120,9 @@ public class Protocol{
 		game.inProgress = true;
 		state = "GAMEINPROGRESS";
 		game.startGame();
+		clientUpdate update = new clientUpdate(server);
+		Thread updateThread = new Thread(update, "Update");
+		updateThread.start();
 		
 	}
 }

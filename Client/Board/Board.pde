@@ -11,8 +11,8 @@ void setup() {
   size(1000, 1000);
     game = new Game();
   try {
-    server = InetAddress.getByName("155.98.38.76");
-    //server = InetAddress.getLocalHost();
+    //server = InetAddress.getByName("155.98.38.76");
+    server = InetAddress.getLocalHost();
     protocol = new Protocol(server, 8082, 1000, game);
     protocol.Connect();
   } 

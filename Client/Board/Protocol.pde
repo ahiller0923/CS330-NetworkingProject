@@ -128,8 +128,8 @@ public class Protocol {
           game.playersAlive += 1;
           player = game.getPlayer(id);
           
-          /*player.position.x =*/ byteBuffer.getFloat();
-          /*player.position.y = */byteBuffer.getFloat();
+          player.position.x = byteBuffer.getFloat();
+          player.position.y = byteBuffer.getFloat();
           player.velocity.x = alpha * player.velocity.x + (1 - alpha) * byteBuffer.getFloat();
           player.velocity.y = alpha * player.velocity.y + (1 - alpha) *byteBuffer.getFloat();
           player.size = byteBuffer.getFloat();
@@ -166,8 +166,9 @@ public class Protocol {
           }
           
           else {
-            /*player.position.x = */byteBuffer.getFloat();
-            /*player.position.y = */byteBuffer.getFloat();
+            player.position.x = byteBuffer.getFloat();
+            player.position.y = byteBuffer.getFloat();
+            
             player.velocity.x = byteBuffer.getFloat();
             player.velocity.y = byteBuffer.getFloat();
             player.size = byteBuffer.getFloat();
