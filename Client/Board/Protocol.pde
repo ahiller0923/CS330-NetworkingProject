@@ -15,7 +15,7 @@ public class Protocol {
   int port;
   String state;
   Game game;
-  float alpha;
+  ManageGameState updateTask;
   
   Protocol (InetAddress target, int portNumber, int bufSize, Game localGame) {
     outgoingBuf = new byte[bufSize];
@@ -25,7 +25,6 @@ public class Protocol {
     port = portNumber;
     game = localGame;
     state = "WAITING";
-    alpha = .75;
     try {
       socket = new DatagramSocket();
     }
@@ -117,22 +116,22 @@ public class Protocol {
   
   void parseData(ByteBuffer byteBuffer, int dataContentIndicator) {
     int id = 1;
-    player player;
+    Player Player;
     
     switch(dataContentIndicator) {
       case 0:
         game.localPlayerID = byteBuffer.getInt();
         
         while(byteBuffer.getInt() == 0) {
-          game.playerList.add(new player(id));
-          game.playersAlive += 1;
-          player = game.getPlayer(id);
+          game.playerList.add(new Player(id));
+          game.PlayersAlive += 1;
+          Player = game.getPlayer(id);
           
-          player.position.x = byteBuffer.getFloat();
-          player.position.y = byteBuffer.getFloat();
-          player.velocity.x = alpha * player.velocity.x + (1 - alpha) * byteBuffer.getFloat();
-          player.velocity.y = alpha * player.velocity.y + (1 - alpha) *byteBuffer.getFloat();
-          player.size = byteBuffer.getFloat();
+          Player.position.x = byteBuffer.getFloat();
+          Player.position.y = byteBuffer.getFloat();
+          Player.velocity.x = byteBuffer.getFloat();
+          Player.velocity.y = byteBuffer.getFloat();
+          Player.size = byteBuffer.getFloat();
           
           id++;
         }
@@ -151,27 +150,31 @@ public class Protocol {
         break;
         
       case 1:
+        byteBuffer.getInt();
+        game.ping =  (System.currentTimeMillis() - byteBuffer.getLong());
         while(byteBuffer.getInt() == 0) {
           if(id >= game.playerList.size() + 1) {
-            game.playerList.add(new player(id));
-            game.playersAlive += 1;
+            game.playerList.add(new Player(id));
+            game.PlayersAlive += 1;
           }
-          player = game.getPlayer(id);
+          Player = game.getPlayer(id);
           
           if (byteBuffer.getInt() == 0) {
-            if(player.alive == true) {
-              player.alive = false;
-              game.playersAlive -= 1;
+            if(Player.alive == true) {
+              Player.alive = false;
+              game.PlayersAlive -= 1;
             }
           }
           
           else {
-            player.position.x = byteBuffer.getFloat();
-            player.position.y = byteBuffer.getFloat();
+            //byteBuffer.getFloat();
+            //byteBuffer.getFloat();
+            Player.position.x = byteBuffer.getFloat();
+            Player.position.y = byteBuffer.getFloat();
             
-            player.velocity.x = byteBuffer.getFloat();
-            player.velocity.y = byteBuffer.getFloat();
-            player.size = byteBuffer.getFloat();
+            Player.velocity.x = byteBuffer.getFloat();
+            Player.velocity.y = byteBuffer.getFloat();
+            Player.size = byteBuffer.getFloat();
           }
           
           id++;
@@ -183,8 +186,9 @@ public class Protocol {
           i++;
         }
         
-        if(i < game.bonusPoints.size()) {
+        while(i < game.bonusPoints.size()) {
           game.bonusPoints.get(i).position = new PVector(-1000, -1000);
+          i++;
         }
         
         break;

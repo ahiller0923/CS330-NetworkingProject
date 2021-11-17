@@ -16,7 +16,7 @@ public class clientUpdate implements Runnable {
 		protocol = activeServer.protocol;
 		server = activeServer;
 		timer = new Timer();
-		ms = (1000 / 30) + 60;
+		ms = (1000 / 30);
 		startTime = System.currentTimeMillis();
 	}
 	

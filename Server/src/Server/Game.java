@@ -26,7 +26,7 @@ public class Game {
 	}
 	
 	void bonusPointGeneration() {
-		int isBonus = ThreadLocalRandom.current().nextInt(1, 1000);
+		int isBonus = ThreadLocalRandom.current().nextInt(1, 250);
 		
 		if(isBonus == 7 && bonusPoints.size() < 11) {
 			bonusPoints.add(new Bonus());

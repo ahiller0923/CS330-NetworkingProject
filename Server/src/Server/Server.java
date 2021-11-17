@@ -15,7 +15,7 @@ public class Server {
 	
 	Server() {
 		try {
-			socket = new DatagramSocket(8080);
+			socket = new DatagramSocket(8081);
 		}
 		catch(Exception ex) {
 			ex.printStackTrace();

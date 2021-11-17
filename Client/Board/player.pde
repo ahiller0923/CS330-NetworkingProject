@@ -1,6 +1,7 @@
 import java.awt.Color;
+import java.util.concurrent.TimeUnit;
 
-public class player {
+public class Player {
   int id;
   PVector position;
   PVector velocity;
@@ -9,7 +10,7 @@ public class player {
   float m;
   Color hue;
   
-  player(int identifier) {
+  Player(int identifier) {
     id = identifier;
     position = new PVector((int)random(200, 800), (int)random(200, 800));
     velocity = new PVector(0, 0);
@@ -25,8 +26,7 @@ public class player {
       textSize(72);
       text("Player " + id, 50, 100);
     }
-    //position.add(velocity);
-    //System.out.println(position);
+
     m = (size/2) *.1;
     ellipse(position.x, position.y, size, size);
     fill(0);
@@ -34,7 +34,7 @@ public class player {
   /* Collision physics found on processing.org shared by Ira Greenberg
      https://processing.org/examples/circlecollision.html */
      
-  void checkCollision(player other) {
+  void checkCollision(Player other) {
 
     // Get distances between the balls components
     PVector distanceVect = PVector.sub(other.position, position);
@@ -166,7 +166,12 @@ public class player {
      data[0] = 1;
      data[1] = game.localPlayerID;
      data[2] = keyInput;
-     
+     try {
+        TimeUnit.MILLISECONDS.sleep(100); // Simulate latency
+      } catch (InterruptedException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
      protocol.send(data);
   }
   

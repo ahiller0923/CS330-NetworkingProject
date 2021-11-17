@@ -1,13 +1,13 @@
 package Server;
-
-import java.net.InetAddress;
 import java.nio.*;
+import java.util.concurrent.TimeUnit;
 
 public class Protocol{
 	String state;
-	byte[] responseBuffer = new byte[200];
 	Game game = new Game();
 	Server server;
+	int tick = 0;
+	boolean packetLoss = false;
 	
 	Protocol(Server activeServer) {
 		state = "WAITING";
@@ -48,7 +48,7 @@ public class Protocol{
 	}
 	
 	byte[] formatResponse(int responseType) {
-		ByteBuffer byteBuffer = ByteBuffer.wrap(responseBuffer);
+		ByteBuffer byteBuffer = ByteBuffer.wrap(new byte[500]);
 		switch(responseType) {
 			case 0:
 				if(state != "GAMEINPROGRESS") {
@@ -83,6 +83,8 @@ public class Protocol{
 				
 			case 1:
 				byteBuffer.putInt(1);
+				byteBuffer.putInt(tick);
+				byteBuffer.putLong(System.currentTimeMillis());
 				for (int i = 1; i <= game.players.size(); i++) {
 					byteBuffer.putInt(0);
 					if(game.getPlayer(i).alive == false) {
@@ -107,6 +109,22 @@ public class Protocol{
 				}
 				byteBuffer.putInt(-1); // Byte indicating that no more bonus points are coming
 				byteBuffer.putInt(0);
+				
+				try {
+					TimeUnit.MILLISECONDS.sleep(100); // Simulate latency
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				// Simulate packet loss
+				if(packetLoss) {
+					packetLoss = false;
+					return new byte[0];
+				}
+				else {
+					packetLoss = true;
+				}
 				
 				return byteBuffer.array();
 				

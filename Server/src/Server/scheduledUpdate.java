@@ -16,6 +16,7 @@ public class scheduledUpdate extends TimerTask{
 	}
 	public void run() {
 		if(server.protocol.game.inProgress) {
+			server.response = null;
 			server.response = server.protocol.formatResponse(1);
 			for(int i = 0; i < server.protocol.game.players.size(); i++) {
 				try {
@@ -31,6 +32,10 @@ public class scheduledUpdate extends TimerTask{
 				catch(Exception ex) {
 					ex.printStackTrace();
 				}
+			}
+			server.protocol.tick++;
+			if(server.protocol.tick == 30) {
+				server.protocol.tick = 0;
 			}
 		}
 		
