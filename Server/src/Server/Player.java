@@ -13,6 +13,7 @@ public class Player {
 	  float m;
 	  boolean connected;
 	  Client clientInfo;
+	  int[] processedInputs = new int[60];
 	  
 	  Player(int identifier, Client client) {
 	    id = identifier;

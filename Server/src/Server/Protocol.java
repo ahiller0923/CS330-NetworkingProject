@@ -9,6 +9,7 @@ public class Protocol{
 	int tick = 0;
 	boolean packetLoss = false;
 	
+	
 	Protocol(Server activeServer) {
 		state = "WAITING";
 		server = activeServer;
@@ -23,8 +24,25 @@ public class Protocol{
 					return formatResponse(0);
 				// Input
 				case 1:
-					game.getPlayer(byteBuffer.getInt()).takeInput(byteBuffer.getInt());
-					return new byte[0];
+					int seqNumber = byteBuffer.getInt();
+					Player player = game.getPlayer(byteBuffer.getInt());
+					if(player.processedInputs[seqNumber] == 0) {
+						int input = byteBuffer.getInt();
+						player.takeInput(input);
+						player.processedInputs[seqNumber] = input;
+						
+						if(seqNumber + 1 < 60) {
+							player.processedInputs[seqNumber + 1] = 0;
+						}
+						else {
+							player.processedInputs[0] = 0;
+						}
+					}
+					ByteBuffer response = ByteBuffer.wrap(new byte[8]);
+					response.putInt(2);
+					response.putInt(seqNumber);
+					return response.array();
+					
 				case 2:
 					
 					game.getPlayer(byteBuffer.getInt()).connected = true;
@@ -110,17 +128,17 @@ public class Protocol{
 				byteBuffer.putInt(-1); // Byte indicating that no more bonus points are coming
 				byteBuffer.putInt(0);
 				
-				/*try {
+				try {
 					TimeUnit.MILLISECONDS.sleep(100); // Simulate latency
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				}*/
+				}
 				
 				// Simulate packet loss
 				if(packetLoss) {
 					packetLoss = false;
-					//return new byte[0];
+					return new byte[0];
 				}
 				else {
 					packetLoss = true;

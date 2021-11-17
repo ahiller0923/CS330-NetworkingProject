@@ -34,6 +34,7 @@ public class scheduledUpdate extends TimerTask{
 				}
 			}
 			server.protocol.tick++;
+			//System.out.println(server.protocol.tick);
 			if(server.protocol.tick == 30) {
 				server.protocol.tick = 0;
 			}

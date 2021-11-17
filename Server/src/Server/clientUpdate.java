@@ -29,7 +29,7 @@ public class clientUpdate implements Runnable {
 		while(server.protocol.game.inProgress) {
 			
 			if(System.currentTimeMillis() - startTime >= 10000) {
-				if(totalData >= 1000) {
+				if(totalData >= 1000 && totalData < 10000000) {
 					System.out.println((totalData / 10000) + " KBps");
 				}
 				else if(totalData >= 1000000) {
