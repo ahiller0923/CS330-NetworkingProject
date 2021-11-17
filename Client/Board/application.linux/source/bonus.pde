@@ -1,10 +1,10 @@
 import java.lang.Math;
 
-public class bonus {
+public class Bonus {
   int size;
   PVector position;;
   
-  bonus(PVector pos) {
+  Bonus(PVector pos) {
     size = 10;
     position = pos;
   }

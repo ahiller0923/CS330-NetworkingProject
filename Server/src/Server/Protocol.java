@@ -110,17 +110,17 @@ public class Protocol{
 				byteBuffer.putInt(-1); // Byte indicating that no more bonus points are coming
 				byteBuffer.putInt(0);
 				
-				try {
+				/*try {
 					TimeUnit.MILLISECONDS.sleep(100); // Simulate latency
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				}
+				}*/
 				
 				// Simulate packet loss
 				if(packetLoss) {
 					packetLoss = false;
-					return new byte[0];
+					//return new byte[0];
 				}
 				else {
 					packetLoss = true;

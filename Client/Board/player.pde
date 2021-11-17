@@ -166,12 +166,7 @@ public class Player {
      data[0] = 1;
      data[1] = game.localPlayerID;
      data[2] = keyInput;
-     try {
-        TimeUnit.MILLISECONDS.sleep(100); // Simulate latency
-      } catch (InterruptedException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
+     
      protocol.send(data);
   }
   

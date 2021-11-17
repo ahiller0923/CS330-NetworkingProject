@@ -1,28 +1,30 @@
 import java.util.ArrayList;
+import java.util.Timer;
 
 public class Game {
-  ArrayList<player> playerList;
-  ArrayList<bonus> bonusPoints;
+  ArrayList<Player> playerList;
+  ArrayList<Bonus> bonusPoints;
   boolean startGame;
-  ring boundary;
+  Ring boundary;
   int windowSize = 1000;
   int localPlayerID;
-  int playersAlive;
+  int PlayersAlive;
+  long ping = 0;
   
   Game() {
-    playerList = new ArrayList<player>();
-    bonusPoints = new ArrayList<bonus>();
+    playerList = new ArrayList<Player>();
+    bonusPoints = new ArrayList<Bonus>();
     startGame = false;
-    boundary = new ring(windowSize/2);
-    bonusPoints = new ArrayList<bonus>();
+    boundary = new Ring(windowSize/2);
+    bonusPoints = new ArrayList<Bonus>();
     
     // Initalize bonus points list
     for(int i = 0; i < 11; i++) {
-      bonusPoints.add(new bonus(new PVector(-1000, -1000)));
-    }
+      bonusPoints.add(new Bonus(new PVector(-1000, -1000)));
+    } 
   }
   
-  player getPlayer(int id) {
+  Player getPlayer(int id) {
     return playerList.get(id - 1);
   }
   
@@ -40,17 +42,19 @@ public class Game {
     for (int i = 0; i < game.playerList.size(); i++) {
       if (playerList.get(i).alive) {
         fill(255);
-        playerList.get(i).position.add(playerList.get(i).velocity);
         playerList.get(i).draw(localPlayerID == playerList.get(i).id);
         
-        if(playersAlive == 1) {
+        fill(255);
+        text(ping + " ms", 800, 100);
+        
+        if(PlayersAlive == 1) {
           text("Player " + playerList.get(i).id + " wins!", 100, 500);
         }
       }
     }
     
     for (int i = 0; i < bonusPoints.size(); i++) {
-      bonus point = bonusPoints.get(i);
+      Bonus point = bonusPoints.get(i);
       point.draw();
     }
   }

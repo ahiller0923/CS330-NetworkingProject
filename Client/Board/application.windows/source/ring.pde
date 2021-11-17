@@ -1,8 +1,8 @@
-public class ring {
+public class Ring {
   int size;
   int position;
   
-  ring(float pos) {
+  Ring(float pos) {
     size = 900;
     position = (int)pos;
   }

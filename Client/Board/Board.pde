@@ -6,7 +6,7 @@ boolean restart = false;
 Game game;
 RequestUpdate requestUpdate;
 InetAddress server;
-int ms = 1000/60;
+int ms = 1000/30;
 
 void setup() {
   size(1000, 1000);

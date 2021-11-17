@@ -16,6 +16,7 @@ public class Protocol {
   String state;
   Game game;
   ManageGameState updateTask;
+  int tick;
   
   Protocol (InetAddress target, int portNumber, int bufSize, Game localGame) {
     outgoingBuf = new byte[bufSize];
@@ -86,6 +87,7 @@ public class Protocol {
   void send(int[] data) {
     outgoingPacket = prepareForTransmission(data);
     try {
+      //TimeUnit.MILLISECONDS.sleep(100); // Simulate latency
       socket.send(outgoingPacket);
     }
     catch(Exception ex) {
