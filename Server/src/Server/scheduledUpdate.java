@@ -4,46 +4,67 @@ import java.net.DatagramPacket;
 import java.util.TimerTask;
 
 public class scheduledUpdate extends TimerTask{
-	clientUpdate callerFunction;
 	private Server server;
+	private Protocol protocol;
 	float bytesPerSecond;
 	long startTime;
+	long totalData = 0;
 	
-	scheduledUpdate(clientUpdate caller) {
-		callerFunction = caller;
-		server = caller.server;
+	scheduledUpdate(Protocol activeProtocol) {
+		protocol = activeProtocol;
+		server = protocol.server;
 		startTime = System.currentTimeMillis();
 	}
 	public void run() {
 		if(server.protocol.game.inProgress) {
+			protocol.game.updateGameState();
 			server.response = null;
-			server.response = server.protocol.formatResponse(1);
-			for(int i = 0; i < server.protocol.game.players.size(); i++) {
+			server.response = protocol.formatResponse(1);
+			for(int i = 0; i < protocol.game.players.size(); i++) {
 				try {
 					server.responsePacket = new DatagramPacket(server.response, server.response.length, 
-							server.protocol.game.players.get(i).clientInfo.address, 
-							server.protocol.game.players.get(i).clientInfo.port);
+							protocol.game.players.get(i).clientInfo.address, 
+							protocol.game.players.get(i).clientInfo.port);
 					
 					server.socket.send(server.responsePacket);
 					
-					callerFunction.totalData += server.responsePacket.getData().length;
+					totalData += server.responsePacket.getData().length;
 
 				}
 				catch(Exception ex) {
 					ex.printStackTrace();
 				}
 			}
-			server.protocol.tick++;
+			protocol.tick++;
 			//System.out.println(server.protocol.tick);
-			if(server.protocol.tick == 30) {
-				server.protocol.tick = 0;
+			if(protocol.tick == 30) {
+				protocol.tick = 0;
 			}
 		}
 		
-		else if(server.protocol.game.playersConnected != server.protocol.game.players.size()) {
-			for(int i = 0; i < server.protocol.game.players.size(); i++) {
+		else if(protocol.game.playersConnected != protocol.game.players.size()) {
+			for(int i = 0; i < protocol.game.players.size(); i++) {
 				//server.response = protocol.formatResponse(0);
 			}
+		}
+		
+		
+		if(System.currentTimeMillis() - startTime >= 10000) {
+			System.out.println(totalData);
+			bytesPerSecond = (totalData/(System.currentTimeMillis() - startTime)) * 1000;
+			
+			if(bytesPerSecond >= 1000 && bytesPerSecond < 10000000) {
+				System.out.println((bytesPerSecond / 1000) + " KBps");
+			}
+			else if(bytesPerSecond >= 1000000) {
+				System.out.println((bytesPerSecond / 1000000) + " MBps");
+			}
+			else {
+				System.out.println(bytesPerSecond + "Bps");
+			}
+			startTime = System.currentTimeMillis();
+			totalData = 0;
+			//System.out.println(server.responsePacket.getData().length);
 		}
 	}
 }

@@ -1,7 +1,5 @@
 package Server;
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Game {
@@ -18,7 +16,7 @@ public class Game {
 		bonusPoints = new ArrayList<Bonus>();
 		boundary = new Ring(windowSize/2);
 		playersConnected = 0;
-		ms = 1000 / 60;
+		ms = 1000 / 30;
 	}
 
 	Player getPlayer(int ID) {
@@ -66,20 +64,4 @@ public class Game {
 	float distance(float x1, float y1, float x2, float y2) {
 		return (float) Math.sqrt(Math.pow(x1-x2, 2) + Math.pow(y1 - y2, 2));
 	}
-	  
-	  void startGame() {
-		  Timer timer = new Timer();
-		  timer.schedule(new gameStateScheduledUpdate(), 0, ms);
-		  inProgress = true;
-		  System.out.println("Game Started");
-	  }
-	  
-	  class gameStateScheduledUpdate extends TimerTask {
-		  public void run() {
-			  updateGameState();
-		  }
-	  }
-
-	
-	
 }
