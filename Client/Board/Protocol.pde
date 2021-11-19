@@ -16,7 +16,7 @@ public class Protocol {
   String state;
   Game game;
   ManageGameState updateTask;
-  int tick;
+  boolean packetLoss = false;
   
   Protocol (InetAddress target, int portNumber, int bufSize, Game localGame) {
     outgoingBuf = new byte[bufSize];
@@ -88,6 +88,13 @@ public class Protocol {
     outgoingPacket = prepareForTransmission(data);
     try {
       //TimeUnit.MILLISECONDS.sleep(100); // Simulate latency
+      if(packetLoss) {
+        packetLoss = false;
+        return;
+      }
+      else {
+        packetLoss = true;
+      }
       socket.send(outgoingPacket);
     }
     catch(Exception ex) {
@@ -107,6 +114,10 @@ public class Protocol {
           //System.out.println("Update Data Received");
           parseData(byteBuffer, 1);
           break;
+        case 2:
+          game.inputs[byteBuffer.getInt()].ack = true;
+          //System.out.println("ACKED");
+          break;
         default:
           System.out.println("Data not parsed");
       }
@@ -122,7 +133,7 @@ public class Protocol {
     
     switch(dataContentIndicator) {
       case 0:
-        game.localPlayerID = byteBuffer.getInt();
+        int localPlayerID = byteBuffer.getInt();
         
         while(byteBuffer.getInt() == 0) {
           game.playerList.add(new Player(id));
@@ -138,11 +149,13 @@ public class Protocol {
           id++;
         }
         
+        game.localPlayer = game.getPlayer(localPlayerID);
+        
         state = "CONNECTED";
         
         int data[] = new int[2];
         data[0] = 2;
-        data[1] = game.localPlayerID;
+        data[1] = localPlayerID;
         send(data);
         
         if (byteBuffer.getInt() == 1) {

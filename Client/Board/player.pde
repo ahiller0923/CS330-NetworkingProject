@@ -129,22 +129,20 @@ public class Player {
     }
   }
   
-  void takeInput() {
-    int[] data = new int[3];
+  Input takeInput(int seqNum) {
     int keyInput;
-    if (key == CODED) {
      switch(keyCode) {
        case(UP):
        if (velocity.y > -3) {
          velocity.y -= 1;
-         System.out.println("UP");
+         //System.out.println("UP");
        }
          keyInput = 38;
          break;
        case(DOWN):
        if (velocity.y < 3) {
           velocity.y += 1;
-          System.out.println("DOWN");
+          //System.out.println("DOWN");
         }
          keyInput = 40;
          break;
@@ -161,19 +159,9 @@ public class Player {
          keyInput = 37;
          break;
        default:
-         return;
+         return null;
      }
-     data[0] = 1;
-     data[1] = game.localPlayerID;
-     data[2] = keyInput;
      
-     protocol.send(data);
-  }
-  
-  else {
-    if(key == 'q') {
-      
-    }
-  }
+     return new Input(seqNum, keyInput);
   }
 };

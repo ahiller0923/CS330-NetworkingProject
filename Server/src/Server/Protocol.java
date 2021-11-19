@@ -59,7 +59,7 @@ public class Protocol{
 		catch(Exception ex) {
 			ex.printStackTrace();
 			System.out.println(incomingData[0]);
-			server.socket.close();
+			//server.socket.close();
 			return new byte[0];
 		}
 		

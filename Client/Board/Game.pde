@@ -7,9 +7,11 @@ public class Game {
   boolean startGame;
   Ring boundary;
   int windowSize = 1000;
-  int localPlayerID;
+  Player localPlayer;
   int PlayersAlive;
   long ping = 0;
+  int seqNum = 0;
+  Input[] inputs =new Input[60];
   
   Game() {
     playerList = new ArrayList<Player>();
@@ -42,7 +44,7 @@ public class Game {
     for (int i = 0; i < game.playerList.size(); i++) {
       if (playerList.get(i).alive) {
         fill(255);
-        playerList.get(i).draw(localPlayerID == playerList.get(i).id);
+        playerList.get(i).draw(localPlayer.id == playerList.get(i).id);
         
         fill(255);
         text(ping + " ms", 800, 100);
@@ -57,6 +59,28 @@ public class Game {
       Bonus point = bonusPoints.get(i);
       point.draw();
     }
+  }
+  
+  void takeInput() {
+    Input input = localPlayer.takeInput(seqNum);
+    inputs[seqNum] = input;
+    seqNum++;
+    
+    if(seqNum == 60) {
+      seqNum = 0;
+    }
+    
+    sendInput(input);
+  }
+  
+  void sendInput(Input input) {
+    int[] data = new int[4];
+    data[0] = 1;
+    data[1] = input.seq;
+    data[2] = game.localPlayer.id;
+    data[3] = input.value;
+   
+    protocol.send(data);
   }
 }
  

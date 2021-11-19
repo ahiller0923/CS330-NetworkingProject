@@ -31,5 +31,17 @@ public class ManageGameState extends TimerTask {
          }*/
        }
      }
+     
+     for (int i = 0; i < game.inputs.length; i++) {
+       if(game.inputs[i] != null) {
+         if(game.inputs[i].ack == false) {
+           game.sendInput(game.inputs[i]);
+           //System.out.println("Retransmitted");
+         }
+       }
+       else {
+         break;
+       }
+     }
    } 
 }

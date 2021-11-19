@@ -31,7 +31,7 @@ void setup() {
 }
 
 void keyPressed() {
-  game.getPlayer(game.localPlayerID).takeInput();
+  game.takeInput();
 }
 
 void draw() {
