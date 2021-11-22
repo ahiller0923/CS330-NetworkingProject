@@ -11,6 +11,8 @@ public class Game {
   int PlayersAlive;
   long ping = 0;
   int seqNum = 0;
+  int lastAcked;
+  int lastSent;
   Input[] inputs =new Input[60];
   
   Game() {
@@ -63,14 +65,17 @@ public class Game {
   
   void takeInput() {
     Input input = localPlayer.takeInput(seqNum);
-    inputs[seqNum] = input;
-    seqNum++;
-    
-    if(seqNum == 60) {
-      seqNum = 0;
+    if(input != null) {
+      inputs[seqNum] = input;
+      lastSent = seqNum;
+      seqNum++;
+     
+      if(seqNum == 60) {
+        seqNum = 0;
+      }
+      
+      sendInput(input);
     }
-    
-    sendInput(input);
   }
   
   void sendInput(Input input) {

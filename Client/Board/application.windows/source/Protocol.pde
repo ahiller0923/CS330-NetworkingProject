@@ -16,7 +16,7 @@ public class Protocol {
   String state;
   Game game;
   ManageGameState updateTask;
-  int tick;
+  boolean packetLoss = false;
   
   Protocol (InetAddress target, int portNumber, int bufSize, Game localGame) {
     outgoingBuf = new byte[bufSize];
@@ -87,7 +87,6 @@ public class Protocol {
   void send(int[] data) {
     outgoingPacket = prepareForTransmission(data);
     try {
-      //TimeUnit.MILLISECONDS.sleep(100); // Simulate latency
       socket.send(outgoingPacket);
     }
     catch(Exception ex) {
@@ -107,6 +106,12 @@ public class Protocol {
           //System.out.println("Update Data Received");
           parseData(byteBuffer, 1);
           break;
+        case 2:
+          game.lastAcked = byteBuffer.getInt();
+          game.inputs[game.lastAcked].ack = true;
+          
+          //System.out.println("ACKED");
+          break;
         default:
           System.out.println("Data not parsed");
       }
@@ -122,7 +127,7 @@ public class Protocol {
     
     switch(dataContentIndicator) {
       case 0:
-        game.localPlayerID = byteBuffer.getInt();
+        int localPlayerID = byteBuffer.getInt();
         
         while(byteBuffer.getInt() == 0) {
           game.playerList.add(new Player(id));
@@ -138,11 +143,13 @@ public class Protocol {
           id++;
         }
         
+        game.localPlayer = game.getPlayer(localPlayerID);
+        
         state = "CONNECTED";
         
         int data[] = new int[2];
         data[0] = 2;
-        data[1] = game.localPlayerID;
+        data[1] = localPlayerID;
         send(data);
         
         if (byteBuffer.getInt() == 1) {
@@ -169,8 +176,8 @@ public class Protocol {
           }
           
           else {
-            //byteBuffer.getFloat();
-            //byteBuffer.getFloat();
+            //Player.position.x = .95 * Player.position.x + (1 - .95) * byteBuffer.getFloat();
+            //Player.position.y = .95 * Player.position.y + (1 - .95) * byteBuffer.getFloat();
             Player.position.x = byteBuffer.getFloat();
             Player.position.y = byteBuffer.getFloat();
             

@@ -87,14 +87,6 @@ public class Protocol {
   void send(int[] data) {
     outgoingPacket = prepareForTransmission(data);
     try {
-      //TimeUnit.MILLISECONDS.sleep(100); // Simulate latency
-      if(packetLoss) {
-        packetLoss = false;
-        return;
-      }
-      else {
-        packetLoss = true;
-      }
       socket.send(outgoingPacket);
     }
     catch(Exception ex) {
@@ -115,7 +107,9 @@ public class Protocol {
           parseData(byteBuffer, 1);
           break;
         case 2:
-          game.inputs[byteBuffer.getInt()].ack = true;
+          game.lastAcked = byteBuffer.getInt();
+          game.inputs[game.lastAcked].ack = true;
+          
           //System.out.println("ACKED");
           break;
         default:
@@ -182,8 +176,8 @@ public class Protocol {
           }
           
           else {
-            //byteBuffer.getFloat();
-            //byteBuffer.getFloat();
+            //Player.position.x = .95 * Player.position.x + (1 - .95) * byteBuffer.getFloat();
+            //Player.position.y = .95 * Player.position.y + (1 - .95) * byteBuffer.getFloat();
             Player.position.x = byteBuffer.getFloat();
             Player.position.y = byteBuffer.getFloat();
             
