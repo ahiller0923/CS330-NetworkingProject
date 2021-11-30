@@ -48,8 +48,8 @@ long startTime;
   /* size commented out by preprocessor */;
   game = new Game();
   try {
-    server = InetAddress.getByName("155.98.39.148");
-    //server = InetAddress.getLocalHost();
+    //server = InetAddress.getByName("155.98.39.148");
+    server = InetAddress.getLocalHost();
     protocol = new Protocol(server, 8081, 1000, game);
     //protocol.Connect();
   } 
