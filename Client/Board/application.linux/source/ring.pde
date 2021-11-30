@@ -1,7 +1,10 @@
 public class Ring {
   int size;
   int position;
-  
+  /**
+  *  Constructor for ring object
+  *  pos  position of ring (will be mirrored for x and y)
+  */
   Ring(float pos) {
     size = 900;
     position = (int)pos;

@@ -18,6 +18,13 @@ public class Protocol {
   ManageGameState updateTask;
   boolean packetLoss = false;
   
+  /**
+  *  Constructor for protocol
+  *  @param target  ip address of the server
+  *  @param portNumber  port to contact server through
+  *  @param bufSize  integer indicating what size the outgoing and incoming buffers should be
+  *  @param localGame  the local game object which will maintain the client game state
+  */
   Protocol (InetAddress target, int portNumber, int bufSize, Game localGame) {
     outgoingBuf = new byte[bufSize];
     incomingBuf = new byte[bufSize];
@@ -34,7 +41,11 @@ public class Protocol {
     }
   }
     
-  // Prepare data to be sent
+  /**
+  *  Formats an array of int data into an array of byte data wrapped in a DatagramPacket
+  *  @param intData  array of integer values to be converted to bytes
+  *  @return  Datagram Packet with integer data in byte form
+  */
   DatagramPacket prepareForTransmission(int[] intData) {
     ByteBuffer byteData = ByteBuffer.allocate(4 * intData.length);
     
@@ -50,26 +61,55 @@ public class Protocol {
     return new DatagramPacket(byteData.array(), byteData.array().length, server, port);
   }
   
-  // Request connection to server
+  /**
+  *  Establishes a connection with the server
+  */
   void Connect() {
     if(state == "WAITING") {
+      // Create a packet with type byte of 0 (connection request)
       ByteBuffer byteBuffer = ByteBuffer.wrap(outgoingBuf);
       byteBuffer.putInt(0);
-      byteBuffer.put("Connect".getBytes());
       outgoingBuf = byteBuffer.array();
       outgoingPacket = new DatagramPacket(outgoingBuf, outgoingBuf.length, server, port);
       try {
-        socket.send(outgoingPacket);
+        socket.send(outgoingPacket); // Send the packet
+        socket.setSoTimeout(2000); // Wait
+        socket.receive(incomingPacket);
+        processResponse(incomingPacket.getData()); // Process the connection data
+
+        while(!game.connected) {
+          // Connection data confirmation
+          int data[] = new int[2];
+          data[0] = 2;
+          data[1] = game.localPlayer.id;
+          send(data);
+
+          try {
+            socket.receive(incomingPacket);
+          }
+          catch(Exception ex) {
+            System.out.println("Trying again...");
+            continue; 
+          }
+          processResponse(incomingPacket.getData());
+        }
+        
+        // If connection data is received, set timeout to be higher since we don't want to throw repeated exceptions while waiting for game to start
+        socket.setSoTimeout(100000000);
+       
       } catch(Exception ex) {
-        System.out.println("Connection Error: " + ex);
+        // If any part fails, try connection again
+        System.out.println("Connection Error: " + ex + "\n\r Retrying...");
+        Connect();
       }
       finally {
-        state = "CONNECTION_REQUESTED";
-        System.out.println("Connection Request Sent Successfully");
+        state = "CONNECTED";
       }
     }
   }
-  
+  /**
+  *  Listens on the socket for incoming server packets and passes them along to the processResponse() function
+  */
   void Listen() {
     try {
       if(game.startGame) {
@@ -93,7 +133,11 @@ public class Protocol {
       ex.printStackTrace();
     }
   }
-  
+  /** 
+  *  Checks the type byte of the server packet and either parses the rest of the data or 
+  *  performs some other functionality based on the type of the packet
+  *  @param serverResponse  byte array of data from the server
+  */
   void processResponse(byte[] serverResponse) {
     ByteBuffer byteBuffer = ByteBuffer.wrap(serverResponse);
     try {
@@ -112,6 +156,21 @@ public class Protocol {
           
           //System.out.println("ACKED");
           break;
+          
+        case 3:
+          game.connectedPlayers = byteBuffer.getInt();
+          break;
+          
+        case 4:
+          game.connected = true;
+          System.out.println("connected");
+          break;
+          
+        case -1:
+          System.out.println("Connection Terminated");
+          state = "WAITING";
+          break;
+          
         default:
           System.out.println("Data not parsed");
       }
@@ -121,63 +180,64 @@ public class Protocol {
     }
   }
   
+  /**
+  *  Parses data received from server based on the type bit. 
+  *  @param byteBuffer  a buffer containing data from the server
+  *  @param dataContentIndicator  an int indicating what type of packet the data belongs to
+  */
   void parseData(ByteBuffer byteBuffer, int dataContentIndicator) {
     int id = 1;
-    Player Player;
+    Player Player; // local player variable to avoid repetitive get functions
     
     switch(dataContentIndicator) {
       case 0:
-        int localPlayerID = byteBuffer.getInt();
-        
-        while(byteBuffer.getInt() == 0) {
-          game.playerList.add(new Player(id));
-          game.PlayersAlive += 1;
-          Player = game.getPlayer(id);
+        if(state == "WAITING") {
+          int localPlayerID = byteBuffer.getInt(); // Get the id which correlates to which player the local user is
+           
+          // Get all player data 
+          while(byteBuffer.getInt() == 0) {
+            game.playerList.add(new Player(id));
+            game.PlayersAlive += 1;
+            Player = game.getPlayer(id);
+            
+            Player.position.x = byteBuffer.getFloat();
+            Player.position.y = byteBuffer.getFloat();
+            Player.velocity.x = byteBuffer.getFloat();
+            Player.velocity.y = byteBuffer.getFloat();
+            Player.size = byteBuffer.getFloat();
+            
+            id++;
+          }
           
-          Player.position.x = byteBuffer.getFloat();
-          Player.position.y = byteBuffer.getFloat();
-          Player.velocity.x = byteBuffer.getFloat();
-          Player.velocity.y = byteBuffer.getFloat();
-          Player.size = byteBuffer.getFloat();
+          game.localPlayer = game.getPlayer(localPlayerID); // Local player is the player which has the localPlayerID
           
-          id++;
+          game.connectedPlayers = game.playerList.size();
         }
-        
-        game.localPlayer = game.getPlayer(localPlayerID);
-        
-        state = "CONNECTED";
-        
-        int data[] = new int[2];
-        data[0] = 2;
-        data[1] = localPlayerID;
-        send(data);
-        
-        if (byteBuffer.getInt() == 1) {
-          game.startGame = true;
-        }
-        
+          
         break;
         
       case 1:
-        byteBuffer.getInt();
-        game.ping =  (System.currentTimeMillis() - byteBuffer.getLong());
+        game.startGame = true; // If we receive a regular server update, that means the game has started
+        
+        game.ping =  (System.currentTimeMillis() - byteBuffer.getLong()); // Ping
+        
+        // While byte is 0, collect more player data
         while(byteBuffer.getInt() == 0) {
-          if(id >= game.playerList.size() + 1) {
+          if(id > game.playerList.size()) {
             game.playerList.add(new Player(id));
             game.PlayersAlive += 1;
           }
           Player = game.getPlayer(id);
           
+          // Check if player has died
           if (byteBuffer.getInt() == 0) {
             if(Player.alive == true) {
               Player.alive = false;
               game.PlayersAlive -= 1;
             }
           }
-          
+          // Get alive player data from server
           else {
-            //Player.position.x = .95 * Player.position.x + (1 - .95) * byteBuffer.getFloat();
-            //Player.position.y = .95 * Player.position.y + (1 - .95) * byteBuffer.getFloat();
             Player.position.x = byteBuffer.getFloat();
             Player.position.y = byteBuffer.getFloat();
             
@@ -190,11 +250,14 @@ public class Protocol {
         }
         
         int i = 0;
+        
+        // Get bonus point data from server
         while(byteBuffer.getInt() == 0) {
           game.bonusPoints.get(i).position = new PVector(byteBuffer.getFloat(), byteBuffer.getFloat());
           i++;
         }
         
+        // Put collected vectors out of sight
         while(i < game.bonusPoints.size()) {
           game.bonusPoints.get(i).position = new PVector(-1000, -1000);
           i++;

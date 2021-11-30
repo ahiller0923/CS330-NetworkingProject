@@ -4,6 +4,10 @@ public class Bonus {
   int size;
   PVector position;;
   
+  /**
+  *  Constructor for bonus point
+  *  @param pos  position of bonus point
+  */
   Bonus(PVector pos) {
     size = 10;
     position = pos;

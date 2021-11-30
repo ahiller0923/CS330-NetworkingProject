@@ -11,6 +11,10 @@ public class Player {
   float m;
   Color hue;
   
+  /**
+  *  Constructor for player object
+  *  @param identifier  integer to be set as Player's id
+  */
   Player(int identifier) {
     id = identifier;
     position = new PVector();
@@ -25,15 +29,22 @@ public class Player {
   void draw(boolean localPlayer) {
     fill(hue.getRGB());
     if (localPlayer) {
-      textSize(72);
-      text("Player " + id, 50, 100);
+      textSize(50);
+      text("Player " + id, 100, 100);
     }
 
     m = (size/2) *.1;
     ellipse(position.x, position.y, size, size);
     fill(0);
   }
-
+  
+  /**
+  *  Handles the local elements of taking input
+  *  Based on keystroke, changes the player velocity
+  *  Creates an input object which will eventually be stored locally and sent to the server
+  *  @parm seqNum  interger indicating where this input occurred relative to others
+  *  @return   input object containing seqNum and the keyCode of the key pressed
+  */
   Input takeInput(int seqNum) {
     int keyInput = 0;
      switch(keyCode) {

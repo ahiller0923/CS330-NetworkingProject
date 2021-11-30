@@ -1,4 +1,7 @@
 package Server;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
 import java.nio.*;
 import java.util.Timer;
 import java.util.concurrent.TimeUnit;
@@ -7,7 +10,7 @@ public class Protocol{
 	String state;
 	Game game = new Game();
 	Server server;
-	int tick = 0;
+	boolean alreadyConnected;
 	
 	Protocol(Server activeServer) {
 		state = "WAITING";
@@ -16,6 +19,9 @@ public class Protocol{
 	
 	byte[] processRequest(byte[] incomingData) {
 		ByteBuffer byteBuffer = ByteBuffer.wrap(incomingData);
+		ByteBuffer response;
+		Player player = null;
+		
 		try {
 			switch(byteBuffer.getInt()) {
 				// Connection Request
@@ -24,7 +30,7 @@ public class Protocol{
 				// Input
 				case 1:
 					int seqNumber = byteBuffer.getInt();
-					Player player = game.getPlayer(byteBuffer.getInt());
+					player = game.getPlayer(byteBuffer.getInt());
 					if(player.processedInputs[seqNumber] == 0) {
 						int input = byteBuffer.getInt();
 						player.takeInput(input);
@@ -37,19 +43,33 @@ public class Protocol{
 							player.processedInputs[0] = 0;
 						}
 					}
-					ByteBuffer response = ByteBuffer.wrap(new byte[8]);
+					response = ByteBuffer.wrap(new byte[8]);
 					response.putInt(2);
 					response.putInt(seqNumber);
 					return response.array();
 					
 				case 2:
-					
-					game.getPlayer(byteBuffer.getInt()).connected = true;
-					game.playersConnected++;
-					if (game.playersConnected > 1 && game.playersConnected == game.players.size()) {
-						startGame();
+					player = game.getPlayer(byteBuffer.getInt());
+					if (player.connected != true) {
+						player.connected = true;
+						game.playersConnected++;
+						newPlayer(game.getPlayer(game.players.size()).clientInfo);
+						System.out.println("Player " + player.id + " has joined!");
 					}
-					return formatResponse(1);
+					
+					response = ByteBuffer.wrap(new byte[4]);
+					response.putInt(4);
+					return response.array();
+
+					
+					
+				case 3:
+					if(game.playersConnected > 1 && game.playersConnected > 1) {
+						startGame();
+						System.out.println("Game Started");
+					}
+					return new byte[0];
+					
 				default:
 					System.out.println("Unrecognized Packet");
 					return new byte[0];
@@ -58,7 +78,6 @@ public class Protocol{
 		catch(Exception ex) {
 			ex.printStackTrace();
 			System.out.println(incomingData[0]);
-			//server.socket.close();
 			return new byte[0];
 		}
 		
@@ -68,12 +87,26 @@ public class Protocol{
 		ByteBuffer byteBuffer = ByteBuffer.wrap(new byte[500]);
 		switch(responseType) {
 			case 0:
+				Player player = null;
+				byteBuffer.putInt(0); // Type byte
 				if(state != "GAMEINPROGRESS") {
-					game.players.add(new Player(game.players.size() + 1, new Client(server.receivePacket.getAddress(), server.receivePacket.getPort())));
-					byteBuffer.putInt(0); // Type byte
-					byteBuffer.putInt(game.players.get(game.players.size()-1).id); // Player ID
-					System.out.println("Player " + game.players.get(game.players.size()-1).id + " has joined!");
+					for(int i = 0; i < game.players.size(); i++) {
+						
+						if(game.getPlayer(i + 1).clientInfo.address == server.receivePacket.getAddress() && game.getPlayer(i + 1) .clientInfo.port == server.receivePacket.getPort()) {
+							player = game.getPlayer(i + 1);
+							alreadyConnected = true;
+							break;
+						}
+					}
 					
+					if(!alreadyConnected) {
+						game.players.add(new Player(game.players.size() + 1, new Client(server.receivePacket.getAddress(), server.receivePacket.getPort())));
+						byteBuffer.putInt(game.players.get(game.players.size()-1).id); // Player ID
+					}
+					else {
+						byteBuffer.putInt(player.id);
+						alreadyConnected = false;
+					}
 					// Add player information to the buffer
 					for (int i = 1; i <= game.players.size(); i++) {
 						byteBuffer.putInt(0); // Byte indicating another player is coming
@@ -84,13 +117,6 @@ public class Protocol{
 						byteBuffer.putFloat(game.getPlayer(i).size);
 					}
 					byteBuffer.putInt(-1); // Byte indicating that there are no more players
-					
-					if(game.players.size() > 1) {
-						byteBuffer.putInt(1); // Byte indicating that game has started
-					}
-					else {
-						byteBuffer.putInt(0); // Byte indicating that game has not started
-					}
 	
 					return byteBuffer.array();
 				}
@@ -100,7 +126,6 @@ public class Protocol{
 				
 			case 1:
 				byteBuffer.putInt(1);
-				byteBuffer.putInt(tick);
 				byteBuffer.putLong(System.currentTimeMillis());
 				for (int i = 1; i <= game.players.size(); i++) {
 					byteBuffer.putInt(0);
@@ -127,7 +152,7 @@ public class Protocol{
 				byteBuffer.putInt(-1); // Byte indicating that no more bonus points are coming
 				byteBuffer.putInt(0);
 				
-				return byteBuffer.array();
+				return byteBuffer.array();	
 				
 			default:
 				return byteBuffer.array();
@@ -135,9 +160,43 @@ public class Protocol{
 		}
 	}
 	
+	void newPlayer(Client exclude) {
+		ByteBuffer newPlayerMsg = ByteBuffer.wrap(new byte[8]);
+		newPlayerMsg.putInt(3);
+		newPlayerMsg.putInt(game.playersConnected);
+		
+		for(int i = 0; i < game.players.size(); i++) {
+			try {
+				server.responsePacket = new DatagramPacket(newPlayerMsg.array(), newPlayerMsg.array().length, 
+						game.players.get(i).clientInfo.address, 
+						game.players.get(i).clientInfo.port);
+				
+				server.socket.send(server.responsePacket);
+			}
+			catch(Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+	
 	void startGame() {
 		game.inProgress = true;
 		state = "GAMEINPROGRESS";
+		Player player = null;
+		ByteBuffer byteBuffer = ByteBuffer.wrap(new byte[4]);
+		byteBuffer.putInt(-1);
+		for(int i = 1; i <= game.players.size(); i++) {
+			player = game.getPlayer(i);
+			if(player.connected != true) {
+				try {
+					server.socket.send(new DatagramPacket(byteBuffer.array(), byteBuffer.array().length, player.clientInfo.address, player.clientInfo.port));
+					player.alive = false;
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
 		Timer Timer = new Timer();
 		scheduledUpdate update = new scheduledUpdate(this);
 		Timer.schedule(update, 0, game.ms);

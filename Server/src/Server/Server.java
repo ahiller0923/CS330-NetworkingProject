@@ -19,20 +19,24 @@ public class Server {
 		}
 	}
 	
+	
+	/**
+	 * Opens up the server to receive packets from clients
+	 */
 	public void start() {
+		// Initialize packet which will store incoming data
 		receivePacket = new DatagramPacket(receive, receive.length);
 		
+		// As long as the socket is not null and is not closed, listen for incoming communication
 		if (socket != null) {
 			System.out.println("Server is running.");
 			while(!socket.isClosed()) {
-				
-				if(socket == null) {
-					break;
-				}
 				try {
 					socket.receive(receivePacket);
+					// Process the incoming data using the protocol
 					response = protocol.processRequest(receivePacket.getData());
 					responsePacket = new DatagramPacket(response, response.length, receivePacket.getAddress(), receivePacket.getPort());
+					// If response is not empty, send it
 					if(responsePacket.getData().length > 0) {
 						socket.send(responsePacket);
 					}

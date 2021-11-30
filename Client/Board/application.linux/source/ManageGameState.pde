@@ -15,32 +15,40 @@ public class ManageGameState extends TimerTask {
     game = activeGame;
     avgLatency = game.ping;
   }
-  
+  /**
+  *  Provides client-side prediction
+  *  Periodically update player positions based on their current velocity.
+  *  Track if a player collects a bonus point and preemptively remove it
+  *  Check if local player inputs have been acknowledged by the server and retransmit unacknowledged inputs every 60 ms
+  */
   public void run() {
     // Update position
      for (int i = 0; i < game.playerList.size(); i++) {
        Player player = game.playerList.get(i);
        if (player.alive) {
-         if (player.serverPosition != player.position) {
-           //player.position.x = player.position.x * 1 + player.serverPosition.x * 0;
-           //player.position.y = player.position.y * 1 + player.serverPosition.y * 0;
-         }
          player.position.add(game.playerList.get(i).velocity);
-         
-       /*for(int y = 0; y < game.bonusPoints.size(); y++) {
+       }
+       
+       for(int y = 0; y < game.bonusPoints.size(); y++) {
            Bonus point = game.bonusPoints.get(y);
            if (game.distance(player.position.x, player.position.y, point.position.x, point.position.y) < player.size/2) {
-             game.bonusPoints.remove(y);
+             game.bonusPoints.get(y).position = new PVector(-1000, -1000);
              player.size += 5;
-         }*/
+         }
        }
      }
      
      for (int i = game.lastAcked; i != game.lastSent; i++) {
        if(game.inputs[i] != null) {
          if(game.inputs[i].ack == false) {
-           game.sendInput(game.inputs[i]);
-           //System.out.println("Retransmitted");
+           if(game.inputs[i].timeSinceTransmission > 60) {
+             game.sendInput(game.inputs[i]);
+             game.inputs[i].timeSinceTransmission = 0;
+             System.out.println("Retransmitted");
+           }
+           else {
+             game.inputs[i].timeSinceTransmission += 16;
+           }
          }
        }
        

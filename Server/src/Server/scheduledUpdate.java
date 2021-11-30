@@ -18,7 +18,6 @@ public class scheduledUpdate extends TimerTask{
 	public void run() {
 		if(server.protocol.game.inProgress) {
 			protocol.game.updateGameState();
-			server.response = null;
 			server.response = protocol.formatResponse(1);
 			for(int i = 0; i < protocol.game.players.size(); i++) {
 				try {
@@ -35,11 +34,6 @@ public class scheduledUpdate extends TimerTask{
 					ex.printStackTrace();
 				}
 			}
-			protocol.tick++;
-			//System.out.println(server.protocol.tick);
-			if(protocol.tick == 30) {
-				protocol.tick = 0;
-			}
 		}
 		
 		else if(protocol.game.playersConnected != protocol.game.players.size()) {
@@ -50,7 +44,6 @@ public class scheduledUpdate extends TimerTask{
 		
 		
 		if(System.currentTimeMillis() - startTime >= 10000) {
-			System.out.println(totalData);
 			bytesPerSecond = (totalData/(System.currentTimeMillis() - startTime)) * 1000;
 			
 			if(bytesPerSecond >= 1000 && bytesPerSecond < 10000000) {
