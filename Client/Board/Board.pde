@@ -13,8 +13,8 @@ void setup() {
   size(750, 750);
   game = new Game();
   try {
-    //server = InetAddress.getByName("155.98.39.90");
-    server = InetAddress.getLocalHost();
+    server = InetAddress.getByName("155.98.39.90");
+    //server = InetAddress.getLocalHost();
     protocol = new Protocol(server, 8081, game);
     //protocol.Connect();
   } 
