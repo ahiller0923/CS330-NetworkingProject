@@ -9,6 +9,7 @@ public class scheduledUpdate extends TimerTask{
 	float bytesPerSecond;
 	long startTime;
 	long totalData = 0;
+	int keepRunning = 20;
 	
 	scheduledUpdate(Protocol activeProtocol) {
 		protocol = activeProtocol;
@@ -16,7 +17,7 @@ public class scheduledUpdate extends TimerTask{
 		startTime = System.currentTimeMillis();
 	}
 	public void run() {
-		if(server.protocol.game.inProgress) {
+		if(protocol.game.inProgress && keepRunning > 1) {
 			protocol.game.updateGameState();
 			server.response = protocol.formatResponse(1);
 			for(int i = 0; i < protocol.game.players.size(); i++) {
@@ -34,11 +35,11 @@ public class scheduledUpdate extends TimerTask{
 					ex.printStackTrace();
 				}
 			}
-		}
-		
-		else if(protocol.game.playersConnected != protocol.game.players.size()) {
-			for(int i = 0; i < protocol.game.players.size(); i++) {
-				//server.response = protocol.formatResponse(0);
+			if(protocol.game.playersAlive < 2) {
+				if(keepRunning == 20) {
+					System.out.println("Game has ended, halting communication...");
+				}
+				keepRunning--;
 			}
 		}
 		
@@ -57,7 +58,6 @@ public class scheduledUpdate extends TimerTask{
 			}
 			startTime = System.currentTimeMillis();
 			totalData = 0;
-			//System.out.println(server.responsePacket.getData().length);
 		}
 	}
 }

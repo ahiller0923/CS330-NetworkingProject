@@ -55,6 +55,7 @@ public class Protocol{
 						if (player.connected != true) {
 							player.connected = true;
 							game.playersConnected++;
+							game.playersAlive++;
 							newPlayer(game.getPlayer(game.players.size()).clientInfo);
 							System.out.println("Player " + player.id + " has joined!");
 						}
@@ -86,7 +87,19 @@ public class Protocol{
 	}
 	
 	byte[] formatResponse(int responseType) {
-		ByteBuffer byteBuffer = ByteBuffer.wrap(new byte[500]);
+		byte[] buffer;
+		
+		if(game.players.size() < 5) {
+			buffer = new byte[300];
+		}
+		else if(game.players.size() < 10) {
+			buffer = new byte[600];
+		}
+		else {
+			buffer = new byte[1000];
+		}
+		
+		ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
 		switch(responseType) {
 			case 0:
 				Player player = null;
@@ -111,14 +124,14 @@ public class Protocol{
 					}
 					// Add player information to the buffer
 					for (int i = 1; i <= game.players.size(); i++) {
-						byteBuffer.putInt(0); // Byte indicating another player is coming
+						byteBuffer.put((byte)1); // Byte indicating another player is coming
 						byteBuffer.putFloat(game.getPlayer(i).position.x);
 						byteBuffer.putFloat(game.getPlayer(i).position.y);
 						byteBuffer.putFloat(game.getPlayer(i).velocity.x);
 						byteBuffer.putFloat(game.getPlayer(i).velocity.y);
 						byteBuffer.putFloat(game.getPlayer(i).size);
 					}
-					byteBuffer.putInt(-1); // Byte indicating that there are no more players
+					byteBuffer.put((byte)0); // Byte indicating that there are no more players
 	
 					return byteBuffer.array();
 				}
@@ -130,12 +143,12 @@ public class Protocol{
 				byteBuffer.putInt(1);
 				byteBuffer.putLong(System.currentTimeMillis());
 				for (int i = 1; i <= game.players.size(); i++) {
-					byteBuffer.putInt(0);
+					byteBuffer.put((byte)1);
 					if(game.getPlayer(i).alive == false) {
-						byteBuffer.putInt(0); // Byte indicating that player has lost
+						byteBuffer.put((byte)0); // Byte indicating that player has lost
 					}
 					else {
-						byteBuffer.putInt(1); // Byte indicating that player is still in the game
+						byteBuffer.put((byte)1); // Byte indicating that player is still in the game
 						byteBuffer.putFloat(game.getPlayer(i).position.x);
 						byteBuffer.putFloat(game.getPlayer(i).position.y);
 						byteBuffer.putFloat(game.getPlayer(i).velocity.x);
@@ -143,16 +156,15 @@ public class Protocol{
 						byteBuffer.putFloat(game.getPlayer(i).size);
 					}
 				}
-				byteBuffer.putInt(-1);
+				byteBuffer.put((byte)0);
 				
 				// Add bonus point information
 				for(int x = 0; x < game.bonusPoints.size(); x++) {
-					byteBuffer.putInt(0); // Byte indicating that more bonus point info is coming
+					byteBuffer.put((byte)1); // Byte indicating that more bonus point info is coming
 					byteBuffer.putFloat(game.bonusPoints.get(x).position.x);
 					byteBuffer.putFloat(game.bonusPoints.get(x).position.y);
 				}
-				byteBuffer.putInt(-1); // Byte indicating that no more bonus points are coming
-				byteBuffer.putInt(0);
+				byteBuffer.put((byte)0); // Byte indicating that no more bonus points are coming
 				
 				return byteBuffer.array();	
 				
@@ -182,6 +194,7 @@ public class Protocol{
 	}
 	
 	void startGame() {
+		game.startingPositions();
 		game.inProgress = true;
 		state = "GAMEINPROGRESS";
 		Player player = null;

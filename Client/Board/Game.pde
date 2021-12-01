@@ -16,7 +16,7 @@ public class Game {
   Input[] inputs =new Input[60];
   int maxPlayers = 8;
   int connectedPlayers = 0;
-  boolean connected = false;
+  boolean connected;
   float rotation = 0;
   
   /**

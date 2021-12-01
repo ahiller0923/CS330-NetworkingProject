@@ -26,9 +26,9 @@ public class Protocol {
   *  @param bufSize  integer indicating what size the outgoing and incoming buffers should be
   *  @param localGame  the local game object which will maintain the client game state
   */
-  Protocol (InetAddress target, int portNumber, int bufSize, Game localGame) {
-    outgoingBuf = new byte[bufSize];
-    incomingBuf = new byte[bufSize];
+  Protocol (InetAddress target, int portNumber, Game localGame) {
+    outgoingBuf = new byte[50];
+    incomingBuf = new byte[1000];
     incomingPacket = new DatagramPacket(incomingBuf, incomingBuf.length);
     server = target;
     port = portNumber;
@@ -140,7 +140,6 @@ public class Protocol {
   }
   
   void send(int[] data) {
-    System.out.println("Sent");
     outgoingPacket = prepareForTransmission(data);
     try {
       socket.send(outgoingPacket);
@@ -211,7 +210,7 @@ public class Protocol {
           int localPlayerID = byteBuffer.getInt(); // Get the id which correlates to which player the local user is
            
           // Get all player data 
-          while(byteBuffer.getInt() == 0) {
+          while(byteBuffer.get() == 1) {
             game.playerList.add(new Player(id));
             game.PlayersAlive += 1;
             Player = game.getPlayer(id);
@@ -238,7 +237,7 @@ public class Protocol {
         game.ping =  (System.currentTimeMillis() - byteBuffer.getLong()); // Ping
         
         // While byte is 0, collect more player data
-        while(byteBuffer.getInt() == 0) {
+        while(byteBuffer.get() == 1) {
           if(id > game.playerList.size()) {
             game.playerList.add(new Player(id));
             game.PlayersAlive += 1;
@@ -246,7 +245,7 @@ public class Protocol {
           Player = game.getPlayer(id);
           
           // Check if player has died
-          if (byteBuffer.getInt() == 0) {
+          if (byteBuffer.get() == 0) {
             if(Player.alive == true) {
               Player.alive = false;
               game.PlayersAlive -= 1;
@@ -268,7 +267,7 @@ public class Protocol {
         int i = 0;
         
         // Get bonus point data from server
-        while(byteBuffer.getInt() == 0) {
+        while(byteBuffer.get() == 1) {
           game.bonusPoints.get(i).position = new PVector(byteBuffer.getFloat(), byteBuffer.getFloat());
           i++;
         }

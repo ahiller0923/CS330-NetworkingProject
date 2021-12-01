@@ -25,6 +25,10 @@ public class Player {
 	    connected = false;
 	    clientInfo = client;
 	  }
+	  
+	  void newPosition() {
+		  position = new PVector((float)ThreadLocalRandom.current().nextInt(150, 600), (float)ThreadLocalRandom.current().nextInt(150, 600));
+	  }
 	
 	/* Collision physics found on processing.org shared by Ira Greenberg
     https://processing.org/examples/circlecollision.html */
