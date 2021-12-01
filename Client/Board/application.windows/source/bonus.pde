@@ -9,7 +9,7 @@ public class Bonus {
   *  @param pos  position of bonus point
   */
   Bonus(PVector pos) {
-    size = 10;
+    size = 5;
     position = pos;
   }
   

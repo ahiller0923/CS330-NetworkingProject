@@ -6,7 +6,7 @@ public class Game {
   ArrayList<Bonus> bonusPoints;
   boolean startGame;
   Ring boundary;
-  int windowSize = 1000;
+  int windowSize = 750;
   Player localPlayer;
   int PlayersAlive;
   long ping = 0;
@@ -64,13 +64,13 @@ public class Game {
     background(64);
     stroke(0);
     frameRate(60);
+    rectMode(CENTER);
     
     // If the game has started
     if (startGame) {
       // Draw the boundary
       boundary.draw();
       textSize(32);
-      text(ping + " ms", 800, 100);
   
       for (int i = 0; i < game.playerList.size(); i++) {
         if (playerList.get(i).alive) {
@@ -80,7 +80,7 @@ public class Game {
           fill(255);
           if(PlayersAlive == 1) {
             textSize(100);
-            text("Player " + playerList.get(i).id + " wins!", 500, 500);
+            text("Player " + playerList.get(i).id + " wins!", 375, 375);
           }
         }
       }
@@ -92,18 +92,17 @@ public class Game {
     }
     // If waiting for the game to start
     else if(connected) {
-      textSize(100);
+      textSize(75);
       textAlign(CENTER);
-      text("Waiting for Players...", 500, 500);
-      textSize(32);
-      text(connectedPlayers + " / " + maxPlayers + " Players", 500, 600);
+      text("Waiting for Players...", 375, 375);
+      textSize(28);
+      text(connectedPlayers + " / " + maxPlayers + " Players", 375, 450);
       
       if (connectedPlayers > 1) {
-        rectMode(CORNER);
-        text("Start Game", 500, 700);
+        text("Start Game", 375, 550);
         noFill();
         stroke(255);
-        rect(420, 667, 160, 50);
+        rect(375, 540, 160, 50);
       }
     }
     
@@ -111,7 +110,6 @@ public class Game {
       // Credit to Mann from open processing.org for the loading animation https://openprocessing.org/sketch/822494
       frameRate(16);
       fill(0,0,0,35);
-      rectMode(CENTER);
       rect(width/2,height/2,width,height);
       translate(width/2,height/2);
       rotate(rotation);

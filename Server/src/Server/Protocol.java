@@ -1,10 +1,8 @@
 package Server;
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.InetAddress;
 import java.nio.*;
 import java.util.Timer;
-import java.util.concurrent.TimeUnit;
 
 public class Protocol{
 	String state;
@@ -26,7 +24,10 @@ public class Protocol{
 			switch(byteBuffer.getInt()) {
 				// Connection Request
 				case 0:
-					return formatResponse(0);
+					if(!game.inProgress) { 
+						return formatResponse(0);
+					}
+					return new byte[0];
 				// Input
 				case 1:
 					int seqNumber = byteBuffer.getInt();
@@ -49,20 +50,21 @@ public class Protocol{
 					return response.array();
 					
 				case 2:
-					player = game.getPlayer(byteBuffer.getInt());
-					if (player.connected != true) {
-						player.connected = true;
-						game.playersConnected++;
-						newPlayer(game.getPlayer(game.players.size()).clientInfo);
-						System.out.println("Player " + player.id + " has joined!");
+					if(!game.inProgress) {
+	 					player = game.getPlayer(byteBuffer.getInt());
+						if (player.connected != true) {
+							player.connected = true;
+							game.playersConnected++;
+							newPlayer(game.getPlayer(game.players.size()).clientInfo);
+							System.out.println("Player " + player.id + " has joined!");
+						}
+						
+						response = ByteBuffer.wrap(new byte[4]);
+						response.putInt(4);
+						return response.array();
 					}
-					
-					response = ByteBuffer.wrap(new byte[4]);
-					response.putInt(4);
-					return response.array();
+					return new byte[0];
 
-					
-					
 				case 3:
 					if(game.playersConnected > 1 && game.playersConnected > 1) {
 						startGame();

@@ -17,9 +17,9 @@ public class Player {
 	  
 	  Player(int identifier, Client client) {
 	    id = identifier;
-	    position = new PVector((float)ThreadLocalRandom.current().nextInt(200, 801), (float)ThreadLocalRandom.current().nextInt(200, 801));
+	    position = new PVector((float)ThreadLocalRandom.current().nextInt(150, 600), (float)ThreadLocalRandom.current().nextInt(150, 600));
 	    velocity = new PVector(0, 0);
-	    size = 30;
+	    size = 20;
 	    alive = true;
 	    m = (float) ((size/2) *.1);
 	    connected = false;

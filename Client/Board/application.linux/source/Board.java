@@ -48,7 +48,7 @@ long startTime;
   /* size commented out by preprocessor */;
   game = new Game();
   try {
-    //server = InetAddress.getByName("155.98.39.148");
+    //server = InetAddress.getByName("155.98.38.160");
     server = InetAddress.getLocalHost();
     protocol = new Protocol(server, 8081, 1000, game);
     //protocol.Connect();
@@ -71,7 +71,7 @@ long startTime;
 }
 
  public void mousePressed() {
-  if (mouseX >= 420 && mouseX <= 580 && mouseY >= 667 && mouseY <= 717 && game.connectedPlayers > 1) {
+  if (mouseX >= 215 && mouseX <= 535 && mouseY >= 490 && mouseY <= 590 && game.connectedPlayers > 1) {
     int[] data = {3};
     protocol.send(data);
     startTime = System.currentTimeMillis();
@@ -96,7 +96,7 @@ public class Game {
   ArrayList<Bonus> bonusPoints;
   boolean startGame;
   Ring boundary;
-  int windowSize = 1000;
+  int windowSize = 750;
   Player localPlayer;
   int PlayersAlive;
   long ping = 0;
@@ -154,13 +154,13 @@ public class Game {
     background(64);
     stroke(0);
     frameRate(60);
+    rectMode(CENTER);
     
     // If the game has started
     if (startGame) {
       // Draw the boundary
       boundary.draw();
       textSize(32);
-      text(ping + " ms", 800, 100);
   
       for (int i = 0; i < game.playerList.size(); i++) {
         if (playerList.get(i).alive) {
@@ -170,7 +170,7 @@ public class Game {
           fill(255);
           if(PlayersAlive == 1) {
             textSize(100);
-            text("Player " + playerList.get(i).id + " wins!", 500, 500);
+            text("Player " + playerList.get(i).id + " wins!", 375, 375);
           }
         }
       }
@@ -182,18 +182,17 @@ public class Game {
     }
     // If waiting for the game to start
     else if(connected) {
-      textSize(100);
+      textSize(75);
       textAlign(CENTER);
-      text("Waiting for Players...", 500, 500);
-      textSize(32);
-      text(connectedPlayers + " / " + maxPlayers + " Players", 500, 600);
+      text("Waiting for Players...", 375, 375);
+      textSize(28);
+      text(connectedPlayers + " / " + maxPlayers + " Players", 375, 450);
       
       if (connectedPlayers > 1) {
-        rectMode(CORNER);
-        text("Start Game", 500, 700);
+        text("Start Game", 375, 550);
         noFill();
         stroke(255);
-        rect(420, 667, 160, 50);
+        rect(375, 540, 160, 50);
       }
     }
     
@@ -201,7 +200,6 @@ public class Game {
       // Credit to Mann from open processing.org for the loading animation https://openprocessing.org/sketch/822494
       frameRate(16);
       fill(0,0,0,35);
-      rectMode(CENTER);
       rect(width/2,height/2,width,height);
       translate(width/2,height/2);
       rotate(rotation);
@@ -343,6 +341,7 @@ public class Protocol {
   Game game;
   ManageGameState updateTask;
   boolean packetLoss = false;
+  int connectionTries = 0;
   
   /**
   *  Constructor for protocol
@@ -392,6 +391,7 @@ public class Protocol {
   */
    public void Connect() {
     if(state == "WAITING") {
+      connectionTries = 0;
       // Create a packet with type byte of 0 (connection request)
       ByteBuffer byteBuffer = ByteBuffer.wrap(outgoingBuf);
       byteBuffer.putInt(0);
@@ -412,12 +412,19 @@ public class Protocol {
 
           try {
             socket.receive(incomingPacket);
+            processResponse(incomingPacket.getData());
           }
           catch(Exception ex) {
             System.out.println("Trying again...");
-            continue; 
+            if(connectionTries < 20) {
+              continue; 
+            }
+            else {
+              System.out.println("Couldn't connect");
+              break; 
+            }
           }
-          processResponse(incomingPacket.getData());
+          
         }
         
         // If connection data is received, set timeout to be higher since we don't want to throw repeated exceptions while waiting for game to start
@@ -426,7 +433,13 @@ public class Protocol {
       } catch(Exception ex) {
         // If any part fails, try connection again
         System.out.println("Connection Error: " + ex + "\n\r Retrying...");
-        Connect();
+        if(connectionTries < 20) {
+          connectionTries++;
+          Connect();
+        }
+        else {
+          System.out.println("Couldn't Connect"); 
+        }
       }
       finally {
         state = "CONNECTED";
@@ -451,6 +464,7 @@ public class Protocol {
   }
   
    public void send(int[] data) {
+    System.out.println("Sent");
     outgoingPacket = prepareForTransmission(data);
     try {
       socket.send(outgoingPacket);
@@ -625,7 +639,7 @@ public class Bonus {
   *  @param pos  position of bonus point
   */
   Bonus(PVector pos) {
-    size = 10;
+    size = 5;
     position = pos;
   }
   
@@ -656,7 +670,7 @@ public class Player {
     position = new PVector();
     serverPosition = new PVector();
     velocity = new PVector(0, 0);
-    size = 30;
+    size = 20;
     alive = true;
     m = (size/2) *.1f;
     hue = new Color((int)random(0, 255), (int)random(0, 255), (int)random(0, 255));
@@ -666,7 +680,7 @@ public class Player {
     fill(hue.getRGB());
     if (localPlayer) {
       textSize(50);
-      text("Player " + id, 100, 100);
+      text("Player " + id, 100, 50);
     }
 
     m = (size/2) *.1f;
@@ -731,7 +745,7 @@ public class Ring {
   *  pos  position of ring (will be mirrored for x and y)
   */
   Ring(float pos) {
-    size = 900;
+    size = 700;
     position = (int)pos;
   }
   
@@ -743,7 +757,7 @@ public class Ring {
 }
 
 
-  public void settings() { size(1000, 1000); }
+  public void settings() { size(750, 750); }
 
   static public void main(String[] passedArgs) {
     String[] appletArgs = new String[] { "Board" };

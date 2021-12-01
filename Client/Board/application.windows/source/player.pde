@@ -20,7 +20,7 @@ public class Player {
     position = new PVector();
     serverPosition = new PVector();
     velocity = new PVector(0, 0);
-    size = 30;
+    size = 20;
     alive = true;
     m = (size/2) *.1;
     hue = new Color((int)random(0, 255), (int)random(0, 255), (int)random(0, 255));
@@ -30,7 +30,7 @@ public class Player {
     fill(hue.getRGB());
     if (localPlayer) {
       textSize(50);
-      text("Player " + id, 100, 100);
+      text("Player " + id, 100, 50);
     }
 
     m = (size/2) *.1;

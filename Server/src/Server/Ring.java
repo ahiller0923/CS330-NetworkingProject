@@ -5,7 +5,7 @@ public class Ring {
 	int position;
 	
 	Ring(float pos) {
-		size = 900;
+		size = 700;
 		position = (int)pos;
 	}
 }

@@ -10,10 +10,10 @@ int ms = 1000/30;
 long startTime;
 
 void setup() {
-  size(1000, 1000);
+  size(750, 750);
   game = new Game();
   try {
-    //server = InetAddress.getByName("155.98.39.148");
+    //server = InetAddress.getByName("155.98.38.160");
     server = InetAddress.getLocalHost();
     protocol = new Protocol(server, 8081, 1000, game);
     //protocol.Connect();
@@ -36,7 +36,7 @@ void keyPressed() {
 }
 
 void mousePressed() {
-  if (mouseX >= 420 && mouseX <= 580 && mouseY >= 667 && mouseY <= 717 && game.connectedPlayers > 1) {
+  if (mouseX >= 215 && mouseX <= 535 && mouseY >= 490 && mouseY <= 590 && game.connectedPlayers > 1) {
     int[] data = {3};
     protocol.send(data);
     startTime = System.currentTimeMillis();

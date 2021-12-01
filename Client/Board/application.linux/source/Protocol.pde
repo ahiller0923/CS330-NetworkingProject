@@ -17,6 +17,7 @@ public class Protocol {
   Game game;
   ManageGameState updateTask;
   boolean packetLoss = false;
+  int connectionTries = 0;
   
   /**
   *  Constructor for protocol
@@ -66,6 +67,7 @@ public class Protocol {
   */
   void Connect() {
     if(state == "WAITING") {
+      connectionTries = 0;
       // Create a packet with type byte of 0 (connection request)
       ByteBuffer byteBuffer = ByteBuffer.wrap(outgoingBuf);
       byteBuffer.putInt(0);
@@ -86,12 +88,19 @@ public class Protocol {
 
           try {
             socket.receive(incomingPacket);
+            processResponse(incomingPacket.getData());
           }
           catch(Exception ex) {
             System.out.println("Trying again...");
-            continue; 
+            if(connectionTries < 20) {
+              continue; 
+            }
+            else {
+              System.out.println("Couldn't connect");
+              break; 
+            }
           }
-          processResponse(incomingPacket.getData());
+          
         }
         
         // If connection data is received, set timeout to be higher since we don't want to throw repeated exceptions while waiting for game to start
@@ -100,7 +109,13 @@ public class Protocol {
       } catch(Exception ex) {
         // If any part fails, try connection again
         System.out.println("Connection Error: " + ex + "\n\r Retrying...");
-        Connect();
+        if(connectionTries < 20) {
+          connectionTries++;
+          Connect();
+        }
+        else {
+          System.out.println("Couldn't Connect"); 
+        }
       }
       finally {
         state = "CONNECTED";
@@ -125,6 +140,7 @@ public class Protocol {
   }
   
   void send(int[] data) {
+    System.out.println("Sent");
     outgoingPacket = prepareForTransmission(data);
     try {
       socket.send(outgoingPacket);

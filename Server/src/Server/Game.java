@@ -7,7 +7,7 @@ public class Game {
 	int playersConnected;
 	ArrayList<Bonus> bonusPoints;
 	boolean inProgress;
-	int windowSize = 1000;
+	int windowSize = 750;
 	Ring boundary;
 	int ms;
 	

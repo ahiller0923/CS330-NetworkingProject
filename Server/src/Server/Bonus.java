@@ -8,7 +8,7 @@ public class Bonus {
 	PVector position;
 	
 	Bonus() {
-		size = 10;
-		position = new PVector((float)ThreadLocalRandom.current().nextInt(200, 801), (float)ThreadLocalRandom.current().nextInt(200, 801));
+		size = 5;
+		position = new PVector((float)ThreadLocalRandom.current().nextInt(150, 600), (float)ThreadLocalRandom.current().nextInt(150, 600));
 	}
 }

@@ -6,7 +6,7 @@ public class Ring {
   *  pos  position of ring (will be mirrored for x and y)
   */
   Ring(float pos) {
-    size = 900;
+    size = 700;
     position = (int)pos;
   }
   
