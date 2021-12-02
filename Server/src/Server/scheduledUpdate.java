@@ -17,7 +17,7 @@ public class scheduledUpdate extends TimerTask{
 		startTime = System.currentTimeMillis();
 	}
 	public void run() {
-		if(protocol.game.inProgress && keepRunning > 1) {
+		if(protocol.game.inProgress) {
 			protocol.game.updateGameState();
 			server.response = protocol.formatResponse(1);
 			for(int i = 0; i < protocol.game.players.size(); i++) {
@@ -35,12 +35,12 @@ public class scheduledUpdate extends TimerTask{
 					ex.printStackTrace();
 				}
 			}
-			if(protocol.game.playersAlive < 2) {
+			/*if(protocol.game.playersAlive < 2) {
 				if(keepRunning == 20) {
 					System.out.println("Game has ended, halting communication...");
 				}
 				keepRunning--;
-			}
+			}*/
 		}
 		
 		
